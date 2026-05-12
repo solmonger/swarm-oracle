@@ -1,0 +1,119 @@
+No files changed, compilation skipped
+Traces:
+  [5063332] Deploy::run()
+    ├─ [0] VM::startBroadcast()
+    │   └─ ← [Return]
+    ├─ [827559] → new CalibrationRegistry@0x42987D1753e6290B68273Ff8310E7f8248290890
+    │   └─ ← [Return] 3912 bytes of code
+    ├─ [800545] → new SwarmConsensus@0xF0F393D1bFA815537F9FcfC6e6520e0379A1071a
+    │   └─ ← [Return] 3776 bytes of code
+    ├─ [1009162] → new RewardDistribution@0xa9B3bB31dbe15DD26031Fe899284F267308D625B
+    │   └─ ← [Return] 4817 bytes of code
+    ├─ [1404504] → new AgentIdentity@0x5bD8b36214d002cB250Be1c9a82022875331b947
+    │   └─ ← [Return] 6793 bytes of code
+    ├─ [392134] CalibrationRegistry::seedBrierBatch([0x0000000000000000000000000000000000000001, 0x0000000000000000000000000000000000000002, 0x0000000000000000000000000000000000000003], [100000000000000000 [1e17], 180000000000000000 [1.8e17], 250000000000000000 [2.5e17]], [220, 140, 25])
+    │   ├─ emit AgentRegistered(agent: ECRecover: [0x0000000000000000000000000000000000000001])
+    │   ├─ emit BrierSeeded(agent: ECRecover: [0x0000000000000000000000000000000000000001], brier: 100000000000000000 [1e17], n: 220)
+    │   ├─ emit AgentRegistered(agent: SHA-256: [0x0000000000000000000000000000000000000002])
+    │   ├─ emit BrierSeeded(agent: SHA-256: [0x0000000000000000000000000000000000000002], brier: 180000000000000000 [1.8e17], n: 140)
+    │   ├─ emit AgentRegistered(agent: RIPEMD-160: [0x0000000000000000000000000000000000000003])
+    │   ├─ emit BrierSeeded(agent: RIPEMD-160: [0x0000000000000000000000000000000000000003], brier: 250000000000000000 [2.5e17], n: 25)
+    │   └─ ← [Stop]
+    ├─ [24051] CalibrationRegistry::setUpdater(SwarmConsensus: [0xF0F393D1bFA815537F9FcfC6e6520e0379A1071a], true)
+    │   ├─ emit UpdaterSet(updater: SwarmConsensus: [0xF0F393D1bFA815537F9FcfC6e6520e0379A1071a], allowed: true)
+    │   └─ ← [Stop]
+    ├─ [454288] AgentIdentity::mintBatch([0x0000000000000000000000000000000000000001, 0x0000000000000000000000000000000000000002, 0x0000000000000000000000000000000000000003], ["agent-oracle", "agent-reliable", "agent-novice"], ["", "", ""])
+    │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: ECRecover: [0x0000000000000000000000000000000000000001], tokenId: 1)
+    │   ├─ emit AgentMinted(tokenId: 1, agent: ECRecover: [0x0000000000000000000000000000000000000001], label: "agent-oracle")
+    │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: SHA-256: [0x0000000000000000000000000000000000000002], tokenId: 2)
+    │   ├─ emit AgentMinted(tokenId: 2, agent: SHA-256: [0x0000000000000000000000000000000000000002], label: "agent-reliable")
+    │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: RIPEMD-160: [0x0000000000000000000000000000000000000003], tokenId: 3)
+    │   ├─ emit AgentMinted(tokenId: 3, agent: RIPEMD-160: [0x0000000000000000000000000000000000000003], label: "agent-novice")
+    │   └─ ← [Return] [1, 2, 3]
+    ├─ [0] VM::stopBroadcast()
+    │   └─ ← [Return]
+    ├─ [0] console::log("=== Swarm Oracle Deployed ===") [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] console::log("CalibrationRegistry:", CalibrationRegistry: [0x42987D1753e6290B68273Ff8310E7f8248290890]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] console::log("SwarmConsensus:     ", SwarmConsensus: [0xF0F393D1bFA815537F9FcfC6e6520e0379A1071a]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] console::log("RewardDistribution: ", RewardDistribution: [0xa9B3bB31dbe15DD26031Fe899284F267308D625B]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] console::log("AgentIdentity:      ", AgentIdentity: [0x5bD8b36214d002cB250Be1c9a82022875331b947]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] console::log("=============================") [staticcall]
+    │   └─ ← [Stop]
+    └─ ← [Return]
+
+
+Script ran successfully.
+
+== Logs ==
+  === Swarm Oracle Deployed ===
+  CalibrationRegistry: 0x42987D1753e6290B68273Ff8310E7f8248290890
+  SwarmConsensus:      0xF0F393D1bFA815537F9FcfC6e6520e0379A1071a
+  RewardDistribution:  0xa9B3bB31dbe15DD26031Fe899284F267308D625B
+  AgentIdentity:       0x5bD8b36214d002cB250Be1c9a82022875331b947
+  =============================
+
+## Setting up 1 EVM.
+==========================
+Simulated On-chain Traces:
+
+  [827559] → new CalibrationRegistry@0x42987D1753e6290B68273Ff8310E7f8248290890
+    └─ ← [Return] 3912 bytes of code
+
+  [800545] → new SwarmConsensus@0xF0F393D1bFA815537F9FcfC6e6520e0379A1071a
+    └─ ← [Return] 3776 bytes of code
+
+  [1009162] → new RewardDistribution@0xa9B3bB31dbe15DD26031Fe899284F267308D625B
+    └─ ← [Return] 4817 bytes of code
+
+  [1404504] → new AgentIdentity@0x5bD8b36214d002cB250Be1c9a82022875331b947
+    └─ ← [Return] 6793 bytes of code
+
+  [394134] CalibrationRegistry::seedBrierBatch([0x0000000000000000000000000000000000000001, 0x0000000000000000000000000000000000000002, 0x0000000000000000000000000000000000000003], [100000000000000000 [1e17], 180000000000000000 [1.8e17], 250000000000000000 [2.5e17]], [220, 140, 25])
+    ├─ emit AgentRegistered(agent: ECRecover: [0x0000000000000000000000000000000000000001])
+    ├─ emit BrierSeeded(agent: ECRecover: [0x0000000000000000000000000000000000000001], brier: 100000000000000000 [1e17], n: 220)
+    ├─ emit AgentRegistered(agent: SHA-256: [0x0000000000000000000000000000000000000002])
+    ├─ emit BrierSeeded(agent: SHA-256: [0x0000000000000000000000000000000000000002], brier: 180000000000000000 [1.8e17], n: 140)
+    ├─ emit AgentRegistered(agent: RIPEMD-160: [0x0000000000000000000000000000000000000003])
+    ├─ emit BrierSeeded(agent: RIPEMD-160: [0x0000000000000000000000000000000000000003], brier: 250000000000000000 [2.5e17], n: 25)
+    └─ ← [Stop]
+
+  [26051] CalibrationRegistry::setUpdater(SwarmConsensus: [0xF0F393D1bFA815537F9FcfC6e6520e0379A1071a], true)
+    ├─ emit UpdaterSet(updater: SwarmConsensus: [0xF0F393D1bFA815537F9FcfC6e6520e0379A1071a], allowed: true)
+    └─ ← [Stop]
+
+  [461088] AgentIdentity::mintBatch([0x0000000000000000000000000000000000000001, 0x0000000000000000000000000000000000000002, 0x0000000000000000000000000000000000000003], ["agent-oracle", "agent-reliable", "agent-novice"], ["", "", ""])
+    ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: ECRecover: [0x0000000000000000000000000000000000000001], tokenId: 1)
+    ├─ emit AgentMinted(tokenId: 1, agent: ECRecover: [0x0000000000000000000000000000000000000001], label: "agent-oracle")
+    ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: SHA-256: [0x0000000000000000000000000000000000000002], tokenId: 2)
+    ├─ emit AgentMinted(tokenId: 2, agent: SHA-256: [0x0000000000000000000000000000000000000002], label: "agent-reliable")
+    ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: RIPEMD-160: [0x0000000000000000000000000000000000000003], tokenId: 3)
+    ├─ emit AgentMinted(tokenId: 3, agent: RIPEMD-160: [0x0000000000000000000000000000000000000003], label: "agent-novice")
+    └─ ← [Return] [1, 2, 3]
+
+
+==========================
+
+Chain 84532
+
+Estimated gas price: 0.0101 gwei
+
+Estimated total gas used for script: 7288676
+
+Estimated amount required: 0.0000736156276 ETH
+
+==========================
+
+
+==========================
+
+ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.
+
+Transactions saved to: /Users/operator/Desktop/hackathon/swarm-oracle/contracts/broadcast/Deploy.s.sol/84532/run-latest.json
+
+Sensitive values saved to: /Users/operator/Desktop/hackathon/swarm-oracle/contracts/cache/Deploy.s.sol/84532/run-latest.json
+

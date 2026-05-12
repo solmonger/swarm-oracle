@@ -17,13 +17,16 @@ pragma solidity ^0.8.24;
  *           5. Seeds 3 mock agents with Brier scores + mints identity tokens
  */
 
+import {Script, console} from "forge-std/Script.sol";
 import {CalibrationRegistry} from "../src/CalibrationRegistry.sol";
 import {SwarmConsensus} from "../src/SwarmConsensus.sol";
 import {RewardDistribution} from "../src/RewardDistribution.sol";
 import {AgentIdentity} from "../src/AgentIdentity.sol";
 
-contract Deploy {
+contract Deploy is Script {
     function run() external {
+        vm.startBroadcast();
+
         // --- Deploy core contracts ---
         CalibrationRegistry registry = new CalibrationRegistry();
         SwarmConsensus consensus = new SwarmConsensus(address(registry));
@@ -75,5 +78,15 @@ contract Deploy {
         uris[2] = "";
 
         identity.mintBatch(agents, labels, uris);
+
+        vm.stopBroadcast();
+
+        // --- Log deployed addresses ---
+        console.log("=== Swarm Oracle Deployed ===");
+        console.log("CalibrationRegistry:", address(registry));
+        console.log("SwarmConsensus:     ", address(consensus));
+        console.log("RewardDistribution: ", address(rewards));
+        console.log("AgentIdentity:      ", address(identity));
+        console.log("=============================");
     }
 }

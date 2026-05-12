@@ -40,21 +40,41 @@ Consensus:
 
 ```bash
 # Clone
-git clone https://github.com/SolMonger/swarm-oracle.git
+git clone https://github.com/eshaan-mathakari/swarm-oracle.git
 cd swarm-oracle
 
-# Run (requires an OpenAI-compatible LLM server)
-export LLM_API_URL="http://localhost:8080/v1/chat/completions"
-python swarm_verify.py "Will ETH close above $3,000 on June 1, 2026?"
+# Install in editable mode (zero runtime deps; tests require pytest)
+pip install -e .
 
-# JSON output
-python swarm_verify.py --json "Will BTC be above $100K tomorrow?"
+# --- Demo mode (no LLM, no network needed) ---
+python3 -m swarm_oracle.cli --demo "Will BTC hit 100k?"
+
+# Or via the convenience entry-point
+python3 swarm_verify.py --demo "Will BTC hit 100k?"
+
+# Three-question recorded demo
+bash record-demo.sh   # writes demo-recording.txt
+
+# --- Live mode (requires an OpenAI-compatible LLM server) ---
+export LLM_API_URL="http://localhost:8080/v1/chat/completions"
+python3 swarm_verify.py "Will ETH close above $3,000 on June 1, 2026?"
+
+# JSON output (machine-readable)
+python3 swarm_verify.py --demo --json "Will BTC be above $100K tomorrow?"
 
 # With on-chain submission (requires web3.py + deployed contracts)
-python swarm_verify.py --on-chain \
-  --registry-addr 0x... --consensus-addr 0x... \
+python3 swarm_verify.py --on-chain \
+  --registry-addr 0x42987D1753e6290B68273Ff8310E7f8248290890 \
+  --consensus-addr 0xF0F393D1bFA815537F9FcfC6e6520e0379A1071a \
   "Did ETH close above $3,500 on May 10?"
 ```
+
+### Demo output (verified 2026-05-12)
+
+`python3 -m swarm_oracle.cli --demo "Will BTC hit 100k?"` returns three
+deterministic agent votes (BTC ≈ $81K), a weighted consensus probability of
+~0.07, variance ~0.012, and decision `NO` — finished in <2s. The `--json`
+flag emits the same data as a single JSON object.
 
 ### LLM Server
 
@@ -148,7 +168,7 @@ swarm-oracle/
 │   │   └── AgentIdentity.t.sol       # Foundry tests — identity
 │   └── script/
 │       └── Deploy.s.sol              # Full-suite deployment (all 4 contracts)
-├── tests/                       # Python test suite (115+ tests)
+├── tests/                       # Python test suite (133 tests, 3 skipped)
 ├── docs/
 │   └── DEPLOYMENT.md            # Base Sepolia deployment guide
 └── examples/
@@ -211,15 +231,23 @@ Interactive docs at `http://localhost:8000/docs` (Swagger UI) or `/redoc`.
 ## Running Tests
 
 ```bash
-# Python tests (115+ tests, ~1.5s)
-python -m pytest tests/ -v
+# Python tests — 133 passing, 3 intentionally skipped (~8s)
+python3 -m pytest tests/ -v
 
-# Solidity tests (requires Foundry)
-cd contracts && forge test -v
+# Solidity tests — 57 passing (requires Foundry)
+cd contracts && forge test -vv
 
 # Cross-verification: Python↔Solidity math parity
-python -m pytest contracts/test/test_solidity_math_parity.py -v
+python3 -m pytest tests/test_solidity_math_parity.py -v
 ```
+
+### Test counts (last verified 2026-05-12)
+
+| Suite                      | Passing | Skipped | Notes                                       |
+|----------------------------|---------|---------|---------------------------------------------|
+| Solidity (`forge test`)    | 57      | 0       | 4 test files, full coverage of all contracts |
+| Python (`pytest tests/`)   | 133     | 3       | Skipped tests are intentional placeholders   |
+| `forge build` warnings     | 0       | —       | Zero lint warnings                           |
 
 ## Contracts
 

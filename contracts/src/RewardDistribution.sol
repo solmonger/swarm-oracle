@@ -38,8 +38,8 @@ contract RewardDistribution {
     // Immutables & state
     // -----------------------------------------------------------------------
 
-    CalibrationRegistry public immutable registry;
-    SwarmConsensus public immutable consensus;
+    CalibrationRegistry public immutable REGISTRY;
+    SwarmConsensus public immutable CONSENSUS;
 
     address public owner;
     mapping(address => bool) public distributors;
@@ -82,16 +82,24 @@ contract RewardDistribution {
     // -----------------------------------------------------------------------
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "RewardDistribution: not owner");
+        _onlyOwner();
         _;
     }
 
     modifier onlyDistributor() {
+        _onlyDistributor();
+        _;
+    }
+
+    function _onlyOwner() internal view {
+        require(msg.sender == owner, "RewardDistribution: not owner");
+    }
+
+    function _onlyDistributor() internal view {
         require(
             distributors[msg.sender] || msg.sender == owner,
             "RewardDistribution: not distributor"
         );
-        _;
     }
 
     // -----------------------------------------------------------------------
@@ -99,8 +107,8 @@ contract RewardDistribution {
     // -----------------------------------------------------------------------
 
     constructor(address _registry, address _consensus) {
-        registry = CalibrationRegistry(_registry);
-        consensus = SwarmConsensus(_consensus);
+        REGISTRY = CalibrationRegistry(_registry);
+        CONSENSUS = SwarmConsensus(_consensus);
         owner = msg.sender;
         distributors[msg.sender] = true;
     }
@@ -160,19 +168,19 @@ contract RewardDistribution {
             uint256 numVotes,
             ,  // resolvedAt
             bool resolved
-        ) = consensus.getResult(questionId);
+        ) = CONSENSUS.getResult(questionId);
         require(resolved, "RewardDistribution: not resolved");
         require(numVotes > 0, "RewardDistribution: no votes");
 
         // Get votes
-        SwarmConsensus.Vote[] memory votes = consensus.getVotes(questionId);
+        SwarmConsensus.Vote[] memory votes = CONSENSUS.getVotes(questionId);
 
         // Fetch weights from registry
         address[] memory agentAddrs = new address[](votes.length);
         for (uint256 i = 0; i < votes.length; i++) {
             agentAddrs[i] = votes[i].agent;
         }
-        uint256[] memory weights = registry.computeWeights(agentAddrs);
+        uint256[] memory weights = REGISTRY.computeWeights(agentAddrs);
 
         // Compute total weight
         uint256 totalWeight = 0;
