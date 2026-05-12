@@ -187,7 +187,6 @@ contract RewardDistribution {
 
         if (decision == SwarmConsensus.Decision.YES || decision == SwarmConsensus.Decision.NO) {
             for (uint256 i = 0; i < votes.length; i++) {
-                bool agentSaidYes = votes[i].probability >= consensusProb;
                 // More nuanced: reward agents closer to consensus
                 // "Correct" = within 0.15 of consensus probability
                 uint256 diff;
@@ -203,16 +202,47 @@ contract RewardDistribution {
                 }
             }
         }
-        // If DISPUTE or no agents were "correct", all accuracy pool goes by weight
-        bool hasCorrect = correctWeight > 0;
-
-        // --- Split pool ---
+        // --- Split pool & credit rewards (extracted to avoid stack-too-deep) ---
         uint256 basePool = (pool * BASE_POOL_FRACTION) / WAD;
         uint256 accuracyPool = pool - basePool;  // avoids rounding dust
 
-        uint256 totalCredited = 0;
+        uint256 totalCredited = _creditRewards(
+            questionId, agentAddrs, weights, correct,
+            totalWeight, correctWeight, basePool, accuracyPool
+        );
 
-        for (uint256 i = 0; i < votes.length; i++) {
+        // Mark as distributed
+        distributed[questionId] = true;
+        totalDistributed += totalCredited;
+
+        distributions[questionId] = DistributionRecord({
+            questionId: questionId,
+            poolSize: pool,
+            numRecipients: votes.length,
+            distributedAt: block.timestamp
+        });
+        distributionHistory.push(questionId);
+
+        emit RewardsDistributed(questionId, pool, votes.length);
+    }
+
+    // -----------------------------------------------------------------------
+    // Internal — reward crediting (extracted to avoid stack-too-deep)
+    // -----------------------------------------------------------------------
+
+    function _creditRewards(
+        bytes32 questionId,
+        address[] memory agentAddrs,
+        uint256[] memory weights,
+        bool[] memory correct,
+        uint256 totalWeight,
+        uint256 correctWeight,
+        uint256 basePool,
+        uint256 accuracyPool
+    ) internal returns (uint256 totalCredited) {
+        bool hasCorrect = correctWeight > 0;
+
+        for (uint256 i = 0; i < agentAddrs.length; i++) {
             uint256 reward = 0;
 
             // Base reward: proportional to weight
@@ -233,20 +263,6 @@ contract RewardDistribution {
                 emit AgentRewarded(questionId, agentAddrs[i], reward);
             }
         }
-
-        // Mark as distributed
-        distributed[questionId] = true;
-        totalDistributed += totalCredited;
-
-        distributions[questionId] = DistributionRecord({
-            questionId: questionId,
-            poolSize: pool,
-            numRecipients: votes.length,
-            distributedAt: block.timestamp
-        });
-        distributionHistory.push(questionId);
-
-        emit RewardsDistributed(questionId, pool, votes.length);
     }
 
     // -----------------------------------------------------------------------
