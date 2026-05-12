@@ -54,6 +54,8 @@ python3 swarm_verify.py --demo "Will BTC hit 100k?"
 
 # Three-question recorded demo
 bash record-demo.sh   # writes demo-recording.txt
+# Pre-recorded asciinema cast: demo/swarm-oracle-demo.cast
+# Replay: asciinema play demo/swarm-oracle-demo.cast
 
 # --- Live mode (requires an OpenAI-compatible LLM server) ---
 export LLM_API_URL="http://localhost:8080/v1/chat/completions"
