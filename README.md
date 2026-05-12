@@ -223,7 +223,20 @@ python -m pytest contracts/test/test_solidity_math_parity.py -v
 
 ## Contracts
 
-Deployed on **Base Sepolia** testnet.
+Deployed on **Base Sepolia** testnet (chain ID 84532).
+
+### Deployed Contracts
+
+| Contract | Address |
+|----------|---------|
+| CalibrationRegistry | [`0x42987D1753e6290B68273Ff8310E7f8248290890`](https://sepolia.basescan.org/address/0x42987D1753e6290B68273Ff8310E7f8248290890) |
+| SwarmConsensus | [`0xF0F393D1bFA815537F9FcfC6e6520e0379A1071a`](https://sepolia.basescan.org/address/0xF0F393D1bFA815537F9FcfC6e6520e0379A1071a) |
+| RewardDistribution | [`0xa9B3bB31dbe15DD26031Fe899284F267308D625B`](https://sepolia.basescan.org/address/0xa9B3bB31dbe15DD26031Fe899284F267308D625B) |
+| AgentIdentity | [`0x5bD8b36214d002cB250Be1c9a82022875331b947`](https://sepolia.basescan.org/address/0x5bD8b36214d002cB250Be1c9a82022875331b947) |
+
+Deployer: [`0xF822f19C0FEc804f002e9087523677195a3C96cE`](https://sepolia.basescan.org/address/0xF822f19C0FEc804f002e9087523677195a3C96cE)
+
+### Contract Details
 
 | Contract | Description |
 |----------|-------------|
