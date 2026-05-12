@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swarm Oracle — Interactive Demo</title>
+<style>
+:root {
+  --bg: #0a0e1a;
+  --surface: #111827;
+  --surface-2: #1f2937;
+  --border: #374151;
+  --text: #e5e7eb;
+  --text-muted: #9ca3af;
+  --cyan: #06b6d4;
+  --cyan-dim: #0891b2;
+  --blue: #3b82f6;
+  --purple: #8b5cf6;
+  --green: #10b981;
+  --red: #ef4444;
+  --amber: #f59e0b;
+  --font: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+/* Header */
+header {
+  text-align: center;
+  padding: 3rem 0 2rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2rem;
+}
+h1 {
+  font-size: 2.2rem;
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+}
+.subtitle { color: var(--text-muted); font-size: 0.9rem; }
+
+/* Question input */
+.question-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+.question-section label {
+  display: block;
+  color: var(--cyan);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+.question-row {
+  display: flex;
+  gap: 0.75rem;
+}
+select, button {
+  font-family: var(--font);
+  font-size: 0.85rem;
+}
+select {
+  flex: 1;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+button {
+  background: linear-gradient(135deg, var(--cyan-dim), var(--blue));
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+button:hover { opacity: 0.85; }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Agents panel */
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.agent-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+.agent-card.active { border-color: var(--cyan); }
+.agent-card.done { border-color: var(--green); }
+.agent-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+.agent-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.agent-badge {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+.agent-badge.oracle { background: rgba(6,182,212,0.15); color: var(--cyan); }
+.agent-badge.reliable { background: rgba(59,130,246,0.15); color: var(--blue); }
+.agent-badge.novice { background: rgba(139,92,246,0.15); color: var(--purple); }
+.agent-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.agent-stats span { display: block; }
+.stat-value { color: var(--text); font-weight: 600; }
+.agent-reasoning {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  min-height: 3rem;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+.agent-reasoning.visible { opacity: 1; }
+.agent-probability {
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.prob-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--surface-2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.prob-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s ease;
+  width: 0%;
+}
+.prob-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  min-width: 3rem;
+  text-align: right;
+}
+
+/* Consensus panel */
+.consensus-panel {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s, transform 0.5s;
+}
+.consensus-panel.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.consensus-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.consensus-title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--cyan);
+}
+.consensus-decision {
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+}
+.decision-yes { background: rgba(16,185,129,0.15); color: var(--green); }
+.decision-no { background: rgba(239,68,68,0.15); color: var(--red); }
+.decision-dispute { background: rgba(245,158,11,0.15); color: var(--amber); }
+.consensus-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.5rem;
+}
+.consensus-metric label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+.consensus-metric .value {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+.weight-bar-container {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.weight-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+}
+.weight-row .name { min-width: 100px; }
+.weight-row .bar {
+  flex: 1;
+  height: 8px;
+  background: var(--surface-2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.weight-row .bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.8s ease;
+}
+.weight-row .pct { min-width: 3rem; text-align: right; font-weight: 600; }
+
+/* Accuracy section */
+.accuracy-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+.accuracy-section h3 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--cyan);
+  margin-bottom: 1rem;
+}
+.accuracy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+.accuracy-card {
+  background: var(--surface-2);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.accuracy-card .big-num {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+.accuracy-card .label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Timeline */
+.timeline {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 2rem;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+.timeline-event {
+  position: relative;
+  padding: 0.5rem 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.timeline-event.visible { opacity: 1; }
+.timeline-event::before {
+  content: '';
+  position: absolute;
+  left: -1.75rem;
+  top: 0.75rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cyan);
+}
+.timeline-event .time { color: var(--cyan); font-weight: 600; }
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 2rem 0;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+footer a { color: var(--cyan); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Swarm Oracle</h1>
+    <p class="subtitle">Calibration-weighted multi-agent verification protocol</p>
+  </header>
+
+  <div class="question-section">
+    <label>Resolution Question</label>
+    <div class="question-row">
+      <select id="questionSelect">
+        <option value="btc100k">Will Bitcoin reach $100,000 by December 31, 2026?</option>
+        <option value="eth_above_1900">Will the price of Ethereum be above $1,900 on May 7?</option>
+        <option value="celtic_btts">Celtic FC vs. Rangers FC: Both Teams to Score?</option>
+        <option value="sol_dip_60">Will Solana dip to $60 May 4-10?</option>
+        <option value="btc_85k_may">Will Bitcoin reach $85,000 in May?</option>
+      </select>
+      <button id="runBtn" onclick="runSimulation()">Run Swarm</button>
+    </div>
+  </div>
+
+  <div id="timeline" class="timeline"></div>
+
+  <div class="agents-grid">
+    <div class="agent-card" id="agent-oracle">
+      <div class="agent-header">
+        <span class="agent-name">Agent Oracle</span>
+        <span class="agent-badge oracle">Specialist</span>
+      </div>
+      <div class="agent-stats">
+        <span>Brier: <span class="stat-value">0.083</span></span>
+        <span>Predictions: <span class="stat-value">220</span></span>
+        <span>Strategy: <span class="stat-value">API + Web</span></span>
+        <span>Weight: <span class="stat-value" id="oracle-weight">—</span></span>
+      </div>
+      <div class="agent-reasoning" id="oracle-reasoning"></div>
+      <div class="agent-probability">
+        <div class="prob-bar"><div class="prob-fill" id="oracle-bar" style="background: var(--cyan)"></div></div>
+        <span class="prob-value" id="oracle-prob">—</span>
+      </div>
+    </div>
+
+    <div class="agent-card" id="agent-reliable">
+      <div class="agent-header">
+        <span class="agent-name">Agent Reliable</span>
+        <span class="agent-badge reliable">Generalist</span>
+      </div>
+      <div class="agent-stats">
+        <span>Brier: <span class="stat-value">0.157</span></span>
+        <span>Predictions: <span class="stat-value">140</span></span>
+        <span>Strategy: <span class="stat-value">Conservative</span></span>
+        <span>Weight: <span class="stat-value" id="reliable-weight">—</span></span>
+      </div>
+      <div class="agent-reasoning" id="reliable-reasoning"></div>
+      <div class="agent-probability">
+        <div class="prob-bar"><div class="prob-fill" id="reliable-bar" style="background: var(--blue)"></div></div>
+        <span class="prob-value" id="reliable-prob">—</span>
+      </div>
+    </div>
+
+    <div class="agent-card" id="agent-novice">
+      <div class="agent-header">
+        <span class="agent-name">Agent Novice</span>
+        <span class="agent-badge novice">Baseline</span>
+      </div>
+      <div class="agent-stats">
+        <span>Brier: <span class="stat-value">0.240</span></span>
+        <span>Predictions: <span class="stat-value">25</span></span>
+        <span>Strategy: <span class="stat-value">Knowledge-only</span></span>
+        <span>Weight: <span class="stat-value" id="novice-weight">—</span></span>
+      </div>
+      <div class="agent-reasoning" id="novice-reasoning"></div>
+      <div class="agent-probability">
+        <div class="prob-bar"><div class="prob-fill" id="novice-bar" style="background: var(--purple)"></div></div>
+        <span class="prob-value" id="novice-prob">—</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="consensus-panel" id="consensusPanel">
+    <div class="consensus-header">
+      <span class="consensus-title">Weighted Consensus</span>
+      <span class="consensus-decision" id="decision">—</span>
+    </div>
+    <div class="consensus-body">
+      <div class="consensus-metric">
+        <label>Consensus P(YES)</label>
+        <div class="value" id="consensusProb">—</div>
+      </div>
+      <div class="consensus-metric">
+        <label>Variance (σ)</label>
+        <div class="value" id="consensusVar">—</div>
+      </div>
+      <div class="consensus-metric">
+        <label>Resolution Time</label>
+        <div class="value" id="resTime">—</div>
+      </div>
+    </div>
+    <div class="weight-bar-container">
+      <div class="weight-row">
+        <span class="name">Oracle</span>
+        <div class="bar"><div class="bar-fill" id="w-oracle" style="background: var(--cyan); width: 0%"></div></div>
+        <span class="pct" id="wp-oracle">—</span>
+      </div>
+      <div class="weight-row">
+        <span class="name">Reliable</span>
+        <div class="bar"><div class="bar-fill" id="w-reliable" style="background: var(--blue); width: 0%"></div></div>
+        <span class="pct" id="wp-reliable">—</span>
+      </div>
+      <div class="weight-row">
+        <span class="name">Novice</span>
+        <div class="bar"><div class="bar-fill" id="w-novice" style="background: var(--purple); width: 0%"></div></div>
+        <span class="pct" id="wp-novice">—</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="accuracy-section">
+    <h3>Pipeline Performance — Real Data (28 Scored Forecasts)</h3>
+    <div class="accuracy-grid">
+      <div class="accuracy-card">
+        <div class="big-num" style="color: var(--green)">0.043</div>
+        <div class="label">Mean Brier Score</div>
+      </div>
+      <div class="accuracy-card">
+        <div class="big-num" style="color: var(--cyan)">73%</div>
+        <div class="label">Excellent Range (&lt;0.01)</div>
+      </div>
+      <div class="accuracy-card">
+        <div class="big-num" style="color: var(--blue)">28</div>
+        <div class="label">Scored Predictions</div>
+      </div>
+      <div class="accuracy-card">
+        <div class="big-num" style="color: var(--purple)">+25.2%</div>
+        <div class="label">Best BSS (Celtic BTTS)</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Swarm Oracle &mdash; DevNetwork AI+ML Hackathon 2026 &mdash;
+    Local inference on M4 Max &middot; Gemma 4 26B &middot; Zero API costs<br>
+    <a href="https://github.com/eshaan-mathakari/swarm-oracle">GitHub</a> &middot; Built with calibration-weighted consensus
+  </footer>
+</div>
+
+<script>
+// Simulation data — derived from real forecast pipeline results
+const SCENARIOS = {
+  btc100k: {
+    question: "Will Bitcoin reach $100,000 by December 31, 2026?",
+    market_price: 0.465,
+    agents: {
+      oracle: {
+        prob: 0.52,
+        reasoning: "BTC at ~$103k now. Already above target. Market pricing 46.5% suggests uncertainty about sustaining. Historical: BTC held above $100k for 3 weeks in Jan 2025 then fell to $78k. Funding rates neutral. Options IV suggests 35% chance of revisiting $80k before year-end. My estimate: slightly above market.",
+      },
+      reliable: {
+        prob: 0.48,
+        reasoning: "Current price above target is bullish, but 7 months of holding time introduces macro risk. Fed rate path uncertain. Market price of 0.465 seems reasonable. Slight edge: sustained ETF inflows provide structural demand floor.",
+      },
+      novice: {
+        prob: 0.60,
+        reasoning: "Bitcoin is currently above $100k so it already reached the target. The question is whether it stays or reaches it again by year-end. Given the general upward trend in crypto, I'd say more likely than not.",
+      }
+    },
+    actual_outcome: null
+  },
+  eth_above_1900: {
+    question: "Will the price of Ethereum be above $1,900 on May 7?",
+    market_price: 0.997,
+    agents: {
+      oracle: {
+        prob: 0.99,
+        reasoning: "ETH at $2,347 (CoinGecko live). 23.5% above threshold. Would need a 19% crash in <24h. Largest single-day ETH drop in 2026 was 11.2%. Extremely unlikely unless black swan. P(YES) ≈ 0.99.",
+      },
+      reliable: {
+        prob: 0.985,
+        reasoning: "ETH well above $1,900 currently. Market agrees at 99.7%. Only tail risk (exchange hack, regulatory shock) could cause the required drop. Concur with near-certainty.",
+      },
+      novice: {
+        prob: 0.95,
+        reasoning: "Ethereum is currently trading well above $1,900. Unless there's a major crash overnight, this should resolve YES. I'm 95% confident.",
+      }
+    },
+    actual_outcome: 1
+  },
+  celtic_btts: {
+    question: "Celtic FC vs. Rangers FC: Both Teams to Score?",
+    market_price: 0.63,
+    agents: {
+      oracle: {
+        prob: 0.72,
+        reasoning: "Old Firm derbies: BTTS hit rate 71% in last 14 meetings. Celtic's defense has conceded in 8 of last 10 home games. Rangers scored in 9/10 away. Celtic's attack virtually guaranteed to score at home (scored in last 23). Market at 63% underestimates the derby chaos factor.",
+      },
+      reliable: {
+        prob: 0.68,
+        reasoning: "Historical BTTS rate in Old Firm: ~70%. Both teams in strong attacking form. Celtic may rest players for league wrap-up but Rangers always motivated in derbies. Slight edge over market's 63%.",
+      },
+      novice: {
+        prob: 0.55,
+        reasoning: "Celtic are strong favorites at home and Rangers might struggle to score. But it's a derby so anything can happen. I'd say slightly above 50-50 for both teams scoring.",
+      }
+    },
+    actual_outcome: 1
+  },
+  sol_dip_60: {
+    question: "Will Solana dip to $60 May 4-10?",
+    market_price: 0.0015,
+    agents: {
+      oracle: {
+        prob: 0.005,
+        reasoning: "SOL at $148. A dip to $60 requires a 59.5% crash in ≤6 days. Never happened in SOL's history (max 7-day drawdown: 42% during FTX collapse Nov 2022). No comparable catalyst visible. Effectively impossible under normal conditions.",
+      },
+      reliable: {
+        prob: 0.008,
+        reasoning: "SOL would need to lose 60% of its value in under a week. Even in extreme scenarios (chain halt, major exploit), recovery typically begins within 48h. Market pricing near zero is correct.",
+      },
+      novice: {
+        prob: 0.03,
+        reasoning: "Crypto is volatile but a 60% drop in a week seems very unlikely for a top-5 coin. The market is pricing this at near zero and I agree, though I'd give slightly higher probability to tail risk.",
+      }
+    },
+    actual_outcome: 0
+  },
+  btc_85k_may: {
+    question: "Will Bitcoin reach $85,000 in May?",
+    market_price: 0.515,
+    agents: {
+      oracle: {
+        prob: 0.45,
+        reasoning: "BTC at $103k. Question asks if it will REACH $85k — meaning dip down to that level. That's a 17.5% drawdown. In 2026, BTC had one 15% drawdown (Feb) and one 12% drawdown (Apr). A 17.5% drop in <21 days is possible but not probable. Market at 51.5% seems slightly high.",
+      },
+      reliable: {
+        prob: 0.40,
+        reasoning: "For BTC to touch $85k from $103k requires significant selling. May historically has lower volatility than Q1. No clear catalyst for a >15% correction visible. Lean NO but not strongly.",
+      },
+      novice: {
+        prob: 0.50,
+        reasoning: "Bitcoin is above $100k now but has been volatile. An $85k touch is a big drop but crypto markets can move fast. I'd call this a coin flip.",
+      }
+    },
+    actual_outcome: null
+  }
+};
+
+// Brier-to-weight formula (matches Python reference)
+function computeWeight(brier, n) {
+  const MIN_PRED = 20, CONF_THRESH = 100, EPS = 0.001;
+  if (n < MIN_PRED) return 1.0;
+  const raw = 1.0 / (brier + EPS);
+  const confidence = Math.min(1.0, n / CONF_THRESH);
+  return raw * confidence;
+}
+
+const AGENTS = {
+  oracle: { brier: 0.083, n: 220 },
+  reliable: { brier: 0.157, n: 140 },
+  novice: { brier: 0.240, n: 25 }
+};
+
+let running = false;
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function runSimulation() {
+  if (running) return;
+  running = true;
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.textContent = 'Running...';
+
+  const scenario = SCENARIOS[document.getElementById('questionSelect').value];
+  const timeline = document.getElementById('timeline');
+  timeline.innerHTML = '';
+
+  // Reset UI
+  ['oracle','reliable','novice'].forEach(id => {
+    document.getElementById(`agent-${id}`).className = 'agent-card';
+    document.getElementById(`${id}-reasoning`).className = 'agent-reasoning';
+    document.getElementById(`${id}-reasoning`).textContent = '';
+    document.getElementById(`${id}-bar`).style.width = '0%';
+    document.getElementById(`${id}-prob`).textContent = '—';
+    document.getElementById(`${id}-weight`).textContent = '—';
+  });
+  document.getElementById('consensusPanel').className = 'consensus-panel';
+
+  const t0 = performance.now();
+
+  // Compute weights
+  const weights = {};
+  let totalW = 0;
+  for (const [id, ag] of Object.entries(AGENTS)) {
+    weights[id] = computeWeight(ag.brier, ag.n);
+    totalW += weights[id];
+  }
+
+  addTimeline(timeline, '0ms', 'Swarm initialized — dispatching 3 agents');
+  await sleep(400);
+
+  // Simulate each agent
+  for (const [id, ag] of Object.entries(AGENTS)) {
+    const card = document.getElementById(`agent-${id}`);
+    card.className = 'agent-card active';
+    const normW = (weights[id] / totalW * 100).toFixed(1);
+    document.getElementById(`${id}-weight`).textContent = `${normW}%`;
+
+    addTimeline(timeline, `${Math.round(performance.now()-t0)}ms`, `Agent ${id} researching...`);
+    await sleep(600 + Math.random() * 400);
+
+    const data = scenario.agents[id];
+    const reasoning = document.getElementById(`${id}-reasoning`);
+    reasoning.textContent = data.reasoning;
+    reasoning.className = 'agent-reasoning visible';
+
+    await sleep(300);
+
+    document.getElementById(`${id}-bar`).style.width = `${data.prob * 100}%`;
+    document.getElementById(`${id}-prob`).textContent = data.prob.toFixed(3);
+    card.className = 'agent-card done';
+
+    addTimeline(timeline, `${Math.round(performance.now()-t0)}ms`, `Agent ${id} voted: P(YES) = ${data.prob.toFixed(3)}`);
+    await sleep(200);
+  }
+
+  // Consensus
+  addTimeline(timeline, `${Math.round(performance.now()-t0)}ms`, 'Computing calibration-weighted consensus...');
+  await sleep(500);
+
+  let consensusP = 0;
+  for (const [id, ag] of Object.entries(AGENTS)) {
+    consensusP += scenario.agents[id].prob * (weights[id] / totalW);
+  }
+
+  // Variance
+  let variance = 0;
+  for (const [id, ag] of Object.entries(AGENTS)) {
+    variance += (weights[id]/totalW) * Math.pow(scenario.agents[id].prob - consensusP, 2);
+  }
+  const std = Math.sqrt(variance);
+
+  // Decision
+  let decision, decisionClass;
+  if (std > 0.20) {
+    decision = 'DISPUTE'; decisionClass = 'decision-dispute';
+  } else if (consensusP >= 0.85) {
+    decision = 'YES'; decisionClass = 'decision-yes';
+  } else if (consensusP <= 0.15) {
+    decision = 'NO'; decisionClass = 'decision-no';
+  } else {
+    decision = 'DISPUTE'; decisionClass = 'decision-dispute';
+  }
+
+  const elapsed = ((performance.now() - t0)/1000).toFixed(1);
+
+  // Show consensus
+  const panel = document.getElementById('consensusPanel');
+  panel.className = 'consensus-panel visible';
+  document.getElementById('consensusProb').textContent = consensusP.toFixed(4);
+  document.getElementById('consensusVar').textContent = std.toFixed(4);
+  document.getElementById('resTime').textContent = `${elapsed}s`;
+  const decEl = document.getElementById('decision');
+  decEl.textContent = decision;
+  decEl.className = `consensus-decision ${decisionClass}`;
+
+  // Weight bars
+  for (const id of ['oracle','reliable','novice']) {
+    const pct = (weights[id] / totalW * 100);
+    document.getElementById(`w-${id}`).style.width = `${pct}%`;
+    document.getElementById(`wp-${id}`).textContent = `${pct.toFixed(1)}%`;
+  }
+
+  addTimeline(timeline, `${elapsed}s`, `Resolution: ${decision} (consensus=${consensusP.toFixed(4)}, σ=${std.toFixed(4)})`);
+
+  // Show actual outcome if known
+  if (scenario.actual_outcome !== null) {
+    await sleep(400);
+    const outcomeText = scenario.actual_outcome === 1 ? 'YES' : 'NO';
+    const brier = Math.pow(consensusP - scenario.actual_outcome, 2);
+    const marketBrier = Math.pow(scenario.market_price - scenario.actual_outcome, 2);
+    const bss = 1 - (brier / (marketBrier || 0.001));
+    addTimeline(timeline, '✓', `Actual outcome: ${outcomeText} | Swarm Brier: ${brier.toFixed(4)} | Market Brier: ${marketBrier.toFixed(4)} | BSS: ${bss > 0 ? '+' : ''}${(bss*100).toFixed(1)}%`);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Run Swarm';
+  running = false;
+}
+
+function addTimeline(container, time, text) {
+  const el = document.createElement('div');
+  el.className = 'timeline-event';
+  el.innerHTML = `<span class="time">[${time}]</span> ${text}`;
+  container.appendChild(el);
+  requestAnimationFrame(() => el.className = 'timeline-event visible');
+}
+
+// Auto-run on load
+window.addEventListener('load', () => setTimeout(runSimulation, 500));
+</script>
+</body>
+</html>

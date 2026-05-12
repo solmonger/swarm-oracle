@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swarm Oracle — Calibration-Weighted Multi-Agent Consensus</title>
+<meta name="description" content="A calibration-weighted multi-agent truth verification protocol for prediction markets. Agents that are consistently right earn more influence.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deepest:#05060a;--bg-deep:#0a0d14;--bg-surface:#0f1219;--bg-elevated:#151a24;
+  --bg-card:#1a202d;--bg-card-hover:#1f2738;
+  --neon-cyan:#00f0ff;--neon-blue:#3b82f6;--neon-purple:#a855f7;--neon-pink:#ec4899;
+  --neon-green:#22d3ee;--neon-orange:#f97316;--neon-gold:#fbbf24;
+  --glow-cyan:rgba(0,240,255,0.15);--glow-blue:rgba(59,130,246,0.15);
+  --glow-purple:rgba(168,85,247,0.15);--glow-green:rgba(34,211,238,0.12);
+  --text-primary:#f1f5f9;--text-secondary:#94a3b8;--text-tertiary:#64748b;--text-muted:#475569;
+  --border-subtle:rgba(148,163,184,0.08);--border-default:rgba(148,163,184,0.12);
+  --border-strong:rgba(148,163,184,0.2);--border-accent:rgba(0,240,255,0.3);
+  --gradient-hero:linear-gradient(135deg,#05060a 0%,#0a1628 40%,#0f0a28 70%,#05060a 100%);
+  --gradient-card:linear-gradient(145deg,var(--bg-card) 0%,var(--bg-elevated) 100%);
+  --gradient-accent:linear-gradient(135deg,var(--neon-cyan),var(--neon-blue),var(--neon-purple));
+  --gradient-text:linear-gradient(135deg,var(--neon-cyan),var(--neon-blue));
+  --gradient-warm:linear-gradient(135deg,var(--neon-orange),var(--neon-pink));
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.4);--shadow-md:0 4px 14px rgba(0,0,0,0.5);
+  --shadow-lg:0 10px 40px rgba(0,0,0,0.6);
+  --shadow-glow:0 0 20px var(--glow-cyan),0 0 60px rgba(0,240,255,0.05);
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono','Fira Code','SF Mono',monospace;
+  --radius-sm:6px;--radius-md:10px;--radius-lg:16px;--radius-xl:24px;--radius-full:9999px;
+  --transition-fast:150ms cubic-bezier(0.4,0,0.2,1);
+  --transition-base:250ms cubic-bezier(0.4,0,0.2,1);
+  --transition-slow:400ms cubic-bezier(0.4,0,0.2,1);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;-webkit-font-smoothing:antialiased;scroll-behavior:smooth;}
+body{font-family:var(--font-sans);background:var(--bg-deepest);color:var(--text-primary);line-height:1.7;min-height:100vh;overflow-x:hidden;}
+h1,h2,h3,h4,h5{font-weight:700;line-height:1.2;letter-spacing:-0.02em;}
+p{color:var(--text-secondary);line-height:1.8;}
+a{color:var(--neon-cyan);text-decoration:none;transition:color var(--transition-fast);}
+a:hover{color:var(--neon-blue);}
+code,.mono{font-family:var(--font-mono);font-size:0.9em;}
+.text-gradient{background:var(--gradient-text);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.text-gradient-warm{background:var(--gradient-warm);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.container{max-width:1200px;margin:0 auto;padding:0 1.5rem;}
+
+/* Background */
+.bg-grid{position:fixed;inset:0;z-index:-1;background-image:linear-gradient(rgba(0,240,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,0.03) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 60% 50% at 50% 50%,black 40%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 60% 50% at 50% 50%,black 40%,transparent 100%);}
+
+/* Nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(5,6,10,0.85);backdrop-filter:blur(20px) saturate(1.5);-webkit-backdrop-filter:blur(20px) saturate(1.5);border-bottom:1px solid var(--border-subtle);padding:1rem 0;}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto;padding:0 1.5rem;}
+.nav-logo{font-size:1.125rem;font-weight:800;letter-spacing:-0.03em;}
+.nav-links{display:flex;gap:2rem;list-style:none;}
+.nav-links a{color:var(--text-secondary);font-size:0.875rem;font-weight:500;}
+.nav-links a:hover,.nav-links a.active{color:var(--neon-cyan);}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:var(--radius-full);font-family:var(--font-sans);font-weight:600;font-size:0.875rem;letter-spacing:0.02em;text-transform:uppercase;border:none;cursor:pointer;transition:all var(--transition-base);text-decoration:none;}
+.btn-primary{background:var(--gradient-accent);color:var(--bg-deepest);box-shadow:0 0 20px var(--glow-cyan);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 0 30px var(--glow-cyan),0 4px 20px rgba(0,0,0,0.4);color:var(--bg-deepest);}
+.btn-outline{background:transparent;color:var(--neon-cyan);border:1.5px solid var(--border-accent);}
+.btn-outline:hover{background:var(--glow-cyan);border-color:var(--neon-cyan);}
+.btn-ghost{background:transparent;color:var(--text-secondary);border:1.5px solid var(--border-default);}
+.btn-ghost:hover{color:var(--text-primary);border-color:var(--border-strong);background:var(--bg-elevated);}
+
+/* Badge */
+.badge{display:inline-flex;align-items:center;gap:0.25rem;padding:0.25rem 0.75rem;border-radius:var(--radius-full);font-size:0.75rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;font-family:var(--font-mono);}
+.badge-cyan{background:var(--glow-cyan);color:var(--neon-cyan);}
+.badge-blue{background:var(--glow-blue);color:var(--neon-blue);}
+.badge-purple{background:var(--glow-purple);color:var(--neon-purple);}
+.badge-green{background:var(--glow-green);color:var(--neon-green);}
+.badge-gold{background:rgba(251,191,36,0.12);color:var(--neon-gold);}
+
+/* Card */
+.card{background:var(--gradient-card);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:2rem;transition:all var(--transition-base);position:relative;overflow:hidden;}
+.card:hover{border-color:var(--border-accent);transform:translateY(-2px);box-shadow:var(--shadow-glow);}
+
+/* Code */
+.code-block{background:var(--bg-deep);border:1px solid var(--border-default);border-radius:var(--radius-md);padding:1.5rem;font-family:var(--font-mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;color:var(--text-secondary);}
+.code-block .kw{color:var(--neon-purple);}
+.code-block .fn{color:var(--neon-blue);}
+.code-block .str{color:var(--neon-green);}
+.code-block .cm{color:var(--text-muted);font-style:italic;}
+.code-block .num{color:var(--neon-orange);}
+.code-block .type{color:var(--neon-cyan);}
+
+/* Divider */
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border-default),transparent);margin:5rem 0;}
+
+/* Stat */
+.stat-value{font-size:3rem;font-weight:800;letter-spacing:-0.03em;line-height:1;margin-bottom:0.5rem;}
+.stat-label{font-size:0.875rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.08em;font-weight:500;}
+
+/* Animations */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+@keyframes float{0%,100%{transform:translateY(0px);}50%{transform:translateY(-10px);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+@keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+@keyframes orbFloat{0%,100%{transform:translate(0,0);}25%{transform:translate(30px,-20px);}50%{transform:translate(-10px,-40px);}75%{transform:translate(-30px,-10px);}}
+@keyframes dataFlow{0%{stroke-dashoffset:20;}100%{stroke-dashoffset:0;}}
+
+.anim{opacity:0;transform:translateY(30px);transition:all 0.7s cubic-bezier(0.4,0,0.2,1);}
+.anim.visible{opacity:1;transform:translateY(0);}
+
+/* ═════════════════════════════════════
+   HERO
+   ═════════════════════════════════════ */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:var(--gradient-hero);z-index:0;}
+.hero-orb{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:1;}
+.hero-orb-1{width:500px;height:500px;background:rgba(0,240,255,0.08);top:-100px;right:-100px;animation:orbFloat 20s ease-in-out infinite;}
+.hero-orb-2{width:400px;height:400px;background:rgba(168,85,247,0.06);bottom:-50px;left:-100px;animation:orbFloat 25s ease-in-out infinite reverse;}
+.hero-orb-3{width:300px;height:300px;background:rgba(59,130,246,0.05);top:40%;left:50%;animation:orbFloat 18s ease-in-out infinite 5s;}
+.hero-content{position:relative;z-index:2;max-width:800px;}
+
+.hero-eyebrow{display:inline-flex;align-items:center;gap:0.5rem;padding:0.375rem 1rem;border-radius:var(--radius-full);background:rgba(0,240,255,0.08);border:1px solid rgba(0,240,255,0.15);font-size:0.8rem;font-weight:600;color:var(--neon-cyan);font-family:var(--font-mono);letter-spacing:0.04em;margin-bottom:1.5rem;animation:fadeInUp 0.6s ease-out;}
+.hero-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--neon-cyan);animation:pulse 2s infinite;}
+
+.hero h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:900;line-height:1.05;letter-spacing:-0.03em;margin-bottom:1.5rem;animation:fadeInUp 0.6s ease-out 0.1s both;}
+.hero .subtitle{font-size:clamp(1.1rem,2vw,1.35rem);color:var(--text-secondary);max-width:600px;margin-bottom:2.5rem;animation:fadeInUp 0.6s ease-out 0.2s both;}
+.hero-actions{display:flex;flex-wrap:wrap;gap:1rem;animation:fadeInUp 0.6s ease-out 0.3s both;}
+
+/* ═════════════════════════════════════
+   PROBLEM / SOLUTION
+   ═════════════════════════════════════ */
+.problem-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:stretch;}
+.problem-card{padding:2.5rem;border-radius:var(--radius-lg);border:1px solid;}
+.problem-card.problem{background:linear-gradient(145deg,rgba(249,115,22,0.05),var(--bg-elevated));border-color:rgba(249,115,22,0.15);}
+.problem-card.solution{background:linear-gradient(145deg,rgba(0,240,255,0.05),var(--bg-elevated));border-color:rgba(0,240,255,0.15);}
+.problem-card h3{margin-bottom:1rem;}
+.problem-card ul{list-style:none;display:flex;flex-direction:column;gap:0.75rem;}
+.problem-card li{display:flex;align-items:flex-start;gap:0.75rem;color:var(--text-secondary);font-size:0.95rem;line-height:1.6;}
+.problem-card li .icon{flex-shrink:0;margin-top:0.2rem;}
+
+/* ═════════════════════════════════════
+   INNOVATION SECTION
+   ═════════════════════════════════════ */
+.innovation-hero{text-align:center;max-width:720px;margin:0 auto 4rem;}
+.brier-visual{display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-top:2rem;}
+.agent-card{background:var(--bg-deep);border:1px solid var(--border-default);border-radius:var(--radius-md);padding:1.25rem;text-align:center;min-width:140px;transition:all var(--transition-base);}
+.agent-card:hover{border-color:var(--border-accent);box-shadow:var(--shadow-glow);}
+.agent-card .agent-name{font-family:var(--font-mono);font-size:0.8rem;color:var(--text-tertiary);margin-bottom:0.5rem;}
+.agent-card .brier{font-size:1.75rem;font-weight:800;line-height:1;}
+.agent-card .weight{font-size:0.8rem;color:var(--text-muted);margin-top:0.25rem;font-family:var(--font-mono);}
+.agent-card .weight-bar{height:4px;border-radius:2px;background:var(--bg-elevated);margin-top:0.5rem;overflow:hidden;}
+.agent-card .weight-bar-fill{height:100%;border-radius:2px;transition:width 1s ease-out;}
+
+/* ═════════════════════════════════════
+   ARCHITECTURE SVG
+   ═════════════════════════════════════ */
+.arch-section{padding:6rem 0;}
+.arch-container{background:var(--bg-deep);border:1px solid var(--border-default);border-radius:var(--radius-xl);padding:3rem;overflow:hidden;}
+.arch-svg{width:100%;height:auto;}
+
+/* ═════════════════════════════════════
+   TECH STACK
+   ═════════════════════════════════════ */
+.stack-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem;}
+.stack-item{display:flex;align-items:center;gap:1rem;background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:1rem 1.25rem;transition:all var(--transition-base);}
+.stack-item:hover{border-color:var(--border-accent);background:var(--bg-card);}
+.stack-icon{width:40px;height:40px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+.stack-info h4{font-size:0.95rem;font-weight:600;margin-bottom:0.125rem;}
+.stack-info p{font-size:0.8rem;color:var(--text-tertiary);line-height:1.4;}
+
+/* ═════════════════════════════════════
+   MOAT / FLYWHEEL
+   ═════════════════════════════════════ */
+.flywheel-container{position:relative;display:flex;justify-content:center;padding:3rem 0;}
+
+/* ═════════════════════════════════════
+   HACKATHON TARGETS
+   ═════════════════════════════════════ */
+.hackathon-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;}
+.hackathon-card{padding:2rem;}
+.hackathon-card .date{font-family:var(--font-mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.75rem;}
+.hackathon-card h3{margin-bottom:0.5rem;}
+.hackathon-card .focus{font-size:0.9rem;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border-subtle);}
+
+/* ═════════════════════════════════════
+   FOOTER
+   ═════════════════════════════════════ */
+footer{padding:4rem 0;text-align:center;border-top:1px solid var(--border-subtle);}
+
+/* Responsive */
+@media(max-width:768px){
+  .nav-links{display:none;}
+  .problem-grid{grid-template-columns:1fr;}
+  .hero h1{font-size:2.25rem;}
+  .brier-visual{gap:0.75rem;}
+  .agent-card{min-width:100px;padding:1rem;}
+}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+
+<!-- ══════════ NAV ══════════ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><span class="text-gradient">Swarm Oracle</span></a>
+    <ul class="nav-links">
+      <li><a href="#problem" class="active">Overview</a></li>
+      <li><a href="#innovation">Innovation</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#stack">Tech Stack</a></li>
+      <li><a href="architecture.html">Interactive Diagram</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <span class="dot"></span>
+        DevNetwork AI+ML &middot; Kite AI &middot; ETHGlobal
+      </div>
+      <h1>
+        The Oracle That<br>
+        <span class="text-gradient">Gets Smarter</span><br>
+        Every Resolution
+      </h1>
+      <p class="subtitle">
+        Calibration-weighted multi-agent consensus for prediction markets.
+        A swarm of AI agents research, verify, and resolve&mdash;weighted by
+        who's been right before, not who has the most tokens.
+      </p>
+      <div class="hero-actions">
+        <a href="architecture.html" class="btn btn-primary">Explore Architecture &rarr;</a>
+        <a href="#innovation" class="btn btn-outline">How It Works</a>
+        <a href="https://github.com" class="btn btn-ghost" target="_blank">GitHub</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ PROBLEM / SOLUTION ══════════ -->
+<section id="problem" class="container" style="padding:6rem 0;">
+  <div class="anim">
+    <div style="text-align:center;margin-bottom:3rem;">
+      <span class="badge badge-gold" style="margin-bottom:1rem;">The Problem</span>
+      <h2>Prediction Markets Deserve<br><span class="text-gradient">Better Oracles</span></h2>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-card problem">
+        <h3 style="color:var(--neon-orange);">Current Oracles</h3>
+        <ul>
+          <li>
+            <span class="icon" style="color:var(--neon-orange);">&#x2717;</span>
+            <span>Single-source verification &mdash; one API call, one point of failure</span>
+          </li>
+          <li>
+            <span class="icon" style="color:var(--neon-orange);">&#x2717;</span>
+            <span>Stake-weighted voting &mdash; rich agents dominate, not accurate ones</span>
+          </li>
+          <li>
+            <span class="icon" style="color:var(--neon-orange);">&#x2717;</span>
+            <span>No memory &mdash; an agent wrong 100 times counts the same as one right 100 times</span>
+          </li>
+          <li>
+            <span class="icon" style="color:var(--neon-orange);">&#x2717;</span>
+            <span>Slow dispute resolution &mdash; days or weeks to challenge bad outcomes</span>
+          </li>
+        </ul>
+      </div>
+      <div class="problem-card solution">
+        <h3 style="color:var(--neon-cyan);">Swarm Oracle</h3>
+        <ul>
+          <li>
+            <span class="icon" style="color:var(--neon-cyan);">&#x2713;</span>
+            <span>Multi-agent verification &mdash; diverse strategies, independent research</span>
+          </li>
+          <li>
+            <span class="icon" style="color:var(--neon-cyan);">&#x2713;</span>
+            <span>Calibration-weighted &mdash; your vote counts proportional to your accuracy</span>
+          </li>
+          <li>
+            <span class="icon" style="color:var(--neon-cyan);">&#x2713;</span>
+            <span>Brier score tracking &mdash; on-chain reputation earned over hundreds of predictions</span>
+          </li>
+          <li>
+            <span class="icon" style="color:var(--neon-cyan);">&#x2713;</span>
+            <span>Optimistic resolution with fast challenge &mdash; resolve immediately, dispute if wrong</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container"><div class="divider"></div></div>
+
+<!-- ══════════ KEY INNOVATION ══════════ -->
+<section id="innovation" class="container" style="padding:6rem 0;">
+  <div class="anim">
+    <div class="innovation-hero">
+      <span class="badge badge-purple" style="margin-bottom:1rem;">Key Innovation</span>
+      <h2>Brier Score Weighting:<br><span class="text-gradient">Accuracy Is Influence</span></h2>
+      <p style="margin-top:1rem;font-size:1.1rem;">
+        Each agent's vote is weighted by the inverse of its Brier score &mdash; a proper scoring rule
+        that measures calibration. Lower Brier = more accurate = more influence on consensus.
+        Agents literally earn trust through performance.
+      </p>
+    </div>
+
+    <!-- Interactive agent weight visualization -->
+    <div class="brier-visual" id="brierViz">
+      <div class="agent-card" data-brier="0.08" data-tier="oracle">
+        <div class="agent-name">Agent Alpha</div>
+        <div class="brier text-gradient" style="background:linear-gradient(135deg,var(--neon-gold),var(--neon-orange));-webkit-background-clip:text;">0.08</div>
+        <div class="weight">weight: 3.0x</div>
+        <div class="weight-bar"><div class="weight-bar-fill" style="width:100%;background:var(--gradient-accent);"></div></div>
+        <span class="badge badge-gold" style="margin-top:0.75rem;font-size:0.65rem;">Oracle Tier</span>
+      </div>
+      <div class="agent-card" data-brier="0.12" data-tier="expert">
+        <div class="agent-name">Agent Beta</div>
+        <div class="brier" style="color:var(--neon-cyan);">0.12</div>
+        <div class="weight">weight: 2.0x</div>
+        <div class="weight-bar"><div class="weight-bar-fill" style="width:67%;background:var(--neon-cyan);"></div></div>
+        <span class="badge badge-cyan" style="margin-top:0.75rem;font-size:0.65rem;">Expert</span>
+      </div>
+      <div class="agent-card" data-brier="0.18" data-tier="reliable">
+        <div class="agent-name">Agent Gamma</div>
+        <div class="brier" style="color:var(--neon-blue);">0.18</div>
+        <div class="weight">weight: 1.5x</div>
+        <div class="weight-bar"><div class="weight-bar-fill" style="width:50%;background:var(--neon-blue);"></div></div>
+        <span class="badge badge-blue" style="margin-top:0.75rem;font-size:0.65rem;">Reliable</span>
+      </div>
+      <div class="agent-card" data-brier="0.22" data-tier="standard">
+        <div class="agent-name">Agent Delta</div>
+        <div class="brier" style="color:var(--neon-purple);">0.22</div>
+        <div class="weight">weight: 1.0x</div>
+        <div class="weight-bar"><div class="weight-bar-fill" style="width:33%;background:var(--neon-purple);"></div></div>
+        <span class="badge badge-purple" style="margin-top:0.75rem;font-size:0.65rem;">Standard</span>
+      </div>
+      <div class="agent-card" data-brier="0.31" data-tier="novice">
+        <div class="agent-name">Agent Epsilon</div>
+        <div class="brier" style="color:var(--text-muted);">0.31</div>
+        <div class="weight">weight: 0.5x</div>
+        <div class="weight-bar"><div class="weight-bar-fill" style="width:17%;background:var(--text-muted);"></div></div>
+        <span class="badge" style="background:var(--bg-elevated);color:var(--text-muted);margin-top:0.75rem;font-size:0.65rem;">Novice</span>
+      </div>
+    </div>
+
+    <!-- Formula -->
+    <div style="margin-top:3rem;text-align:center;">
+      <div class="code-block" style="display:inline-block;text-align:left;max-width:600px;">
+<span class="cm">// Calibration-Weighted Linear Opinion Pool</span>
+<span class="kw">consensus</span> = <span class="fn">sum</span>(w_i * p_i) / <span class="fn">sum</span>(w_i)
+
+<span class="cm">// Where each agent's weight is:</span>
+w_i = (<span class="num">1</span> / (brier_i + <span class="num">0.01</span>)) * <span class="fn">confidence</span>(n_predictions)
+
+<span class="cm">// Resolution thresholds:</span>
+<span class="kw">if</span> consensus > <span class="num">0.90</span> &rarr; <span class="str">Resolve YES</span>
+<span class="kw">if</span> consensus < <span class="num">0.10</span> &rarr; <span class="str">Resolve NO</span>
+<span class="kw">else</span>                &rarr; <span class="type">Dispute Period</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container"><div class="divider"></div></div>
+
+<!-- ══════════ ARCHITECTURE OVERVIEW ══════════ -->
+<section id="architecture" class="container arch-section">
+  <div class="anim">
+    <div style="text-align:center;margin-bottom:3rem;">
+      <span class="badge badge-cyan" style="margin-bottom:1rem;">Architecture</span>
+      <h2>How the <span class="text-gradient">Swarm</span> Resolves</h2>
+      <p style="max-width:600px;margin:1rem auto 0;">From market question to on-chain settlement in under 60 seconds.</p>
+    </div>
+
+    <div class="arch-container">
+      <svg class="arch-svg" viewBox="0 0 900 420" xmlns="http://www.w3.org/2000/svg">
+        <!-- Background -->
+        <defs>
+          <linearGradient id="flowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#00f0ff;stop-opacity:0.8"/>
+            <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:0.8"/>
+            <stop offset="100%" style="stop-color:#a855f7;stop-opacity:0.8"/>
+          </linearGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#00f0ff" opacity="0.7"/>
+          </marker>
+        </defs>
+
+        <!-- Step 1: Market Question -->
+        <rect x="20" y="30" width="160" height="70" rx="12" fill="#0f1219" stroke="#f97316" stroke-width="1.5" opacity="0.9"/>
+        <text x="100" y="58" text-anchor="middle" fill="#f97316" font-family="Inter,sans-serif" font-size="11" font-weight="700">MARKET QUESTION</text>
+        <text x="100" y="78" text-anchor="middle" fill="#94a3b8" font-family="JetBrains Mono,monospace" font-size="9">"2024 Election: GOP win?"</text>
+
+        <!-- Arrow 1→2 -->
+        <line x1="180" y1="65" x2="230" y2="65" stroke="url(#flowGrad)" stroke-width="2" marker-end="url(#arrowhead)" filter="url(#glow)" stroke-dasharray="6 3">
+          <animate attributeName="stroke-dashoffset" from="18" to="0" dur="2s" repeatCount="indefinite"/>
+        </line>
+
+        <!-- Step 2: Agent Swarm -->
+        <rect x="240" y="10" width="200" height="110" rx="14" fill="#0f1219" stroke="#00f0ff" stroke-width="1.5" opacity="0.9"/>
+        <text x="340" y="32" text-anchor="middle" fill="#00f0ff" font-family="Inter,sans-serif" font-size="11" font-weight="700">AGENT SWARM</text>
+
+        <!-- Individual agents -->
+        <rect x="260" y="42" width="72" height="30" rx="6" fill="#151a24" stroke="rgba(0,240,255,0.3)" stroke-width="1"/>
+        <text x="296" y="54" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono,monospace" font-size="8">Agent A</text>
+        <text x="296" y="66" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono,monospace" font-size="7">Brier: 0.08</text>
+
+        <rect x="260" y="78" width="72" height="30" rx="6" fill="#151a24" stroke="rgba(0,240,255,0.3)" stroke-width="1"/>
+        <text x="296" y="90" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono,monospace" font-size="8">Agent B</text>
+        <text x="296" y="102" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono,monospace" font-size="7">Brier: 0.12</text>
+
+        <rect x="348" y="42" width="72" height="30" rx="6" fill="#151a24" stroke="rgba(0,240,255,0.3)" stroke-width="1"/>
+        <text x="384" y="54" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono,monospace" font-size="8">Agent C</text>
+        <text x="384" y="66" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono,monospace" font-size="7">Brier: 0.18</text>
+
+        <rect x="348" y="78" width="72" height="30" rx="6" fill="#151a24" stroke="rgba(168,85,247,0.3)" stroke-width="1"/>
+        <text x="384" y="90" text-anchor="middle" fill="#a855f7" font-family="JetBrains Mono,monospace" font-size="8">Agent N</text>
+        <text x="384" y="102" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono,monospace" font-size="7">Brier: 0.22</text>
+
+        <!-- Arrow 2→3 -->
+        <line x1="440" y1="65" x2="490" y2="65" stroke="url(#flowGrad)" stroke-width="2" marker-end="url(#arrowhead)" filter="url(#glow)" stroke-dasharray="6 3">
+          <animate attributeName="stroke-dashoffset" from="18" to="0" dur="2s" repeatCount="indefinite"/>
+        </line>
+
+        <!-- Step 3: Consensus Engine -->
+        <rect x="500" y="20" width="180" height="90" rx="14" fill="#0f1219" stroke="#3b82f6" stroke-width="1.5" opacity="0.9"/>
+        <text x="590" y="45" text-anchor="middle" fill="#3b82f6" font-family="Inter,sans-serif" font-size="11" font-weight="700">CONSENSUS ENGINE</text>
+        <text x="590" y="62" text-anchor="middle" fill="#94a3b8" font-family="JetBrains Mono,monospace" font-size="8.5">Weighted aggregation</text>
+        <text x="590" y="76" text-anchor="middle" fill="#94a3b8" font-family="JetBrains Mono,monospace" font-size="8.5">Threshold: 0.90 / 0.10</text>
+        <text x="590" y="98" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono,monospace" font-size="9" font-weight="600">P(YES) = 0.97</text>
+
+        <!-- Arrow 3→4 -->
+        <line x1="680" y1="65" x2="730" y2="65" stroke="url(#flowGrad)" stroke-width="2" marker-end="url(#arrowhead)" filter="url(#glow)" stroke-dasharray="6 3">
+          <animate attributeName="stroke-dashoffset" from="18" to="0" dur="2s" repeatCount="indefinite"/>
+        </line>
+
+        <!-- Step 4: Settlement -->
+        <rect x="740" y="20" width="140" height="90" rx="14" fill="#0f1219" stroke="#a855f7" stroke-width="1.5" opacity="0.9"/>
+        <text x="810" y="45" text-anchor="middle" fill="#a855f7" font-family="Inter,sans-serif" font-size="11" font-weight="700">SETTLEMENT</text>
+        <text x="810" y="62" text-anchor="middle" fill="#94a3b8" font-family="JetBrains Mono,monospace" font-size="8.5">On-chain finality</text>
+        <text x="810" y="76" text-anchor="middle" fill="#94a3b8" font-family="JetBrains Mono,monospace" font-size="8.5">Reward distribution</text>
+        <text x="810" y="96" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono,monospace" font-size="9" font-weight="600">&#x2713; RESOLVED: YES</text>
+
+        <!-- Bottom row: Calibration Registry -->
+        <rect x="240" y="160" width="380" height="70" rx="14" fill="#0f1219" stroke="#fbbf24" stroke-width="1.5" opacity="0.9"/>
+        <text x="430" y="185" text-anchor="middle" fill="#fbbf24" font-family="Inter,sans-serif" font-size="11" font-weight="700">CALIBRATION REGISTRY (on-chain)</text>
+        <text x="430" y="205" text-anchor="middle" fill="#94a3b8" font-family="JetBrains Mono,monospace" font-size="9">Agent scores &middot; Prediction history &middot; Reputation decay &middot; Weight derivation</text>
+
+        <!-- Bidirectional arrows to Consensus -->
+        <line x1="430" y1="160" x2="540" y2="110" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+        <line x1="430" y1="160" x2="340" y2="120" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+
+        <!-- Arrow from Settlement back to Registry -->
+        <path d="M810 110 L810 195 L620 195" fill="none" stroke="#a855f7" stroke-width="1" stroke-dasharray="4 3" opacity="0.5" marker-end="url(#arrowhead)"/>
+        <text x="740" y="188" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono,monospace" font-size="7">update scores</text>
+
+        <!-- Data flow labels -->
+        <text x="205" y="55" text-anchor="middle" fill="#475569" font-family="JetBrains Mono,monospace" font-size="7">query</text>
+        <text x="465" y="55" text-anchor="middle" fill="#475569" font-family="JetBrains Mono,monospace" font-size="7">votes</text>
+        <text x="705" y="55" text-anchor="middle" fill="#475569" font-family="JetBrains Mono,monospace" font-size="7">resolve</text>
+
+        <!-- Step numbers -->
+        <circle cx="40" cy="115" r="12" fill="#0f1219" stroke="var(--neon-orange,#f97316)" stroke-width="1"/>
+        <text x="40" y="119" text-anchor="middle" fill="#f97316" font-family="Inter,sans-serif" font-size="10" font-weight="700">1</text>
+        <circle cx="260" cy="135" r="12" fill="#0f1219" stroke="#00f0ff" stroke-width="1"/>
+        <text x="260" y="139" text-anchor="middle" fill="#00f0ff" font-family="Inter,sans-serif" font-size="10" font-weight="700">2</text>
+        <circle cx="510" cy="125" r="12" fill="#0f1219" stroke="#3b82f6" stroke-width="1"/>
+        <text x="510" y="129" text-anchor="middle" fill="#3b82f6" font-family="Inter,sans-serif" font-size="10" font-weight="700">3</text>
+        <circle cx="750" cy="125" r="12" fill="#0f1219" stroke="#a855f7" stroke-width="1"/>
+        <text x="750" y="129" text-anchor="middle" fill="#a855f7" font-family="Inter,sans-serif" font-size="10" font-weight="700">4</text>
+
+        <!-- Step descriptions -->
+        <text x="40" y="140" text-anchor="middle" fill="#64748b" font-family="Inter,sans-serif" font-size="8">Request</text>
+        <text x="260" y="156" text-anchor="middle" fill="#64748b" font-family="Inter,sans-serif" font-size="8">Research</text>
+        <text x="510" y="146" text-anchor="middle" fill="#64748b" font-family="Inter,sans-serif" font-size="8">Aggregate</text>
+        <text x="750" y="146" text-anchor="middle" fill="#64748b" font-family="Inter,sans-serif" font-size="8">Settle</text>
+
+        <!-- Bottom: What we already have -->
+        <rect x="20" y="270" width="860" height="130" rx="14" fill="#0a0d14" stroke="var(--border-default,rgba(148,163,184,0.12))" stroke-width="1" opacity="0.8"/>
+        <text x="450" y="295" text-anchor="middle" fill="#64748b" font-family="Inter,sans-serif" font-size="10" font-weight="600" letter-spacing="0.1em">BUILT ON EXISTING INFRASTRUCTURE</text>
+
+        <rect x="40" y="310" width="150" height="36" rx="8" fill="#151a24" stroke="rgba(34,211,238,0.2)" stroke-width="1"/>
+        <text x="115" y="332" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono,monospace" font-size="8.5">forecast_lab/ 90%</text>
+
+        <rect x="210" y="310" width="150" height="36" rx="8" fill="#151a24" stroke="rgba(34,211,238,0.2)" stroke-width="1"/>
+        <text x="285" y="332" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono,monospace" font-size="8.5">web_resolver 95%</text>
+
+        <rect x="380" y="310" width="150" height="36" rx="8" fill="#151a24" stroke="rgba(34,211,238,0.2)" stroke-width="1"/>
+        <text x="455" y="332" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono,monospace" font-size="8.5">scorer.py 85%</text>
+
+        <rect x="550" y="310" width="150" height="36" rx="8" fill="#151a24" stroke="rgba(34,211,238,0.2)" stroke-width="1"/>
+        <text x="625" y="332" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono,monospace" font-size="8.5">9-agent harness 95%</text>
+
+        <rect x="720" y="310" width="140" height="36" rx="8" fill="#151a24" stroke="rgba(34,211,238,0.2)" stroke-width="1"/>
+        <text x="790" y="332" text-anchor="middle" fill="#22d3ee" font-family="JetBrains Mono,monospace" font-size="8.5">Gemma4 26B 100%</text>
+
+        <text x="450" y="375" text-anchor="middle" fill="#475569" font-family="Inter,sans-serif" font-size="9" font-style="italic">Most components need adapters, not rewrites</text>
+      </svg>
+    </div>
+
+    <div style="text-align:center;margin-top:2rem;">
+      <a href="architecture.html" class="btn btn-outline">Explore Interactive Diagram &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<div class="container"><div class="divider"></div></div>
+
+<!-- ══════════ TECH STACK ══════════ -->
+<section id="stack" class="container" style="padding:6rem 0;">
+  <div class="anim">
+    <div style="text-align:center;margin-bottom:3rem;">
+      <span class="badge badge-green" style="margin-bottom:1rem;">Tech Stack</span>
+      <h2>Built With <span class="text-gradient">Battle-Tested</span> Tools</h2>
+    </div>
+    <div class="stack-grid">
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(59,130,246,0.1);color:var(--neon-blue);">&#x1F40D;</div>
+        <div class="stack-info"><h4>Python 3.11+</h4><p>Agent runtime & consensus logic</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(168,85,247,0.1);color:var(--neon-purple);">&#x1F9E0;</div>
+        <div class="stack-info"><h4>Gemma4 26B (MLX)</h4><p>Local LLM inference on M4 Max</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(0,240,255,0.1);color:var(--neon-cyan);">&#x1F310;</div>
+        <div class="stack-info"><h4>Web Resolver</h4><p>Multi-source research & verification</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(249,115,22,0.1);color:var(--neon-orange);">&#x26A1;</div>
+        <div class="stack-info"><h4>FastAPI</h4><p>Resolution request endpoint</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(168,85,247,0.1);color:var(--neon-purple);">&#x1F4DC;</div>
+        <div class="stack-info"><h4>Solidity 0.8.x</h4><p>Calibration registry & settlement</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(59,130,246,0.1);color:var(--neon-blue);">&#x1F535;</div>
+        <div class="stack-info"><h4>Base (L2)</h4><p>Primary chain — low gas, EVM native</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(34,211,238,0.1);color:var(--neon-green);">&#x1FA81;</div>
+        <div class="stack-info"><h4>Kite AI</h4><p>Agent-native chain for hackathon</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(251,191,36,0.1);color:var(--neon-gold);">&#x1F3AD;</div>
+        <div class="stack-info"><h4>ERC-721 Soulbound</h4><p>Non-transferable agent identity</p></div>
+      </div>
+      <div class="stack-item">
+        <div class="stack-icon" style="background:rgba(0,240,255,0.1);color:var(--neon-cyan);">&#x1F4E6;</div>
+        <div class="stack-info"><h4>IPFS / Arweave</h4><p>Immutable evidence storage</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container"><div class="divider"></div></div>
+
+<!-- ══════════ DATA FLYWHEEL ══════════ -->
+<section class="container" style="padding:6rem 0;">
+  <div class="anim">
+    <div style="text-align:center;margin-bottom:3rem;">
+      <span class="badge badge-gold" style="margin-bottom:1rem;">Defensibility</span>
+      <h2>The <span class="text-gradient-warm">Data Flywheel</span></h2>
+      <p style="max-width:600px;margin:1rem auto 0;">Every resolution produces labeled training data. The protocol gets more accurate over time in a way that's hard to replicate.</p>
+    </div>
+
+    <div style="display:flex;justify-content:center;">
+      <svg viewBox="0 0 500 360" width="500" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;">
+        <defs>
+          <linearGradient id="fwGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#00f0ff;stop-opacity:0.9"/>
+            <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0.9"/>
+          </linearGradient>
+          <linearGradient id="fwGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.9"/>
+            <stop offset="100%" style="stop-color:#a855f7;stop-opacity:0.9"/>
+          </linearGradient>
+          <linearGradient id="fwGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#a855f7;stop-opacity:0.9"/>
+            <stop offset="100%" style="stop-color:#ec4899;stop-opacity:0.9"/>
+          </linearGradient>
+          <linearGradient id="fwGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:0.9"/>
+            <stop offset="100%" style="stop-color:#f97316;stop-opacity:0.9"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Circular arrows -->
+        <path d="M250 60 A120 120 0 0 1 370 180" fill="none" stroke="url(#fwGrad1)" stroke-width="3" stroke-linecap="round" stroke-dasharray="8 4">
+          <animate attributeName="stroke-dashoffset" from="24" to="0" dur="3s" repeatCount="indefinite"/>
+        </path>
+        <path d="M370 180 A120 120 0 0 1 250 300" fill="none" stroke="url(#fwGrad2)" stroke-width="3" stroke-linecap="round" stroke-dasharray="8 4">
+          <animate attributeName="stroke-dashoffset" from="24" to="0" dur="3s" repeatCount="indefinite"/>
+        </path>
+        <path d="M250 300 A120 120 0 0 1 130 180" fill="none" stroke="url(#fwGrad3)" stroke-width="3" stroke-linecap="round" stroke-dasharray="8 4">
+          <animate attributeName="stroke-dashoffset" from="24" to="0" dur="3s" repeatCount="indefinite"/>
+        </path>
+        <path d="M130 180 A120 120 0 0 1 250 60" fill="none" stroke="url(#fwGrad4)" stroke-width="3" stroke-linecap="round" stroke-dasharray="8 4">
+          <animate attributeName="stroke-dashoffset" from="24" to="0" dur="3s" repeatCount="indefinite"/>
+        </path>
+
+        <!-- Node boxes -->
+        <rect x="195" y="30" width="110" height="50" rx="10" fill="#0f1219" stroke="#00f0ff" stroke-width="1.5"/>
+        <text x="250" y="53" text-anchor="middle" fill="#00f0ff" font-family="Inter,sans-serif" font-size="10" font-weight="700">More Questions</text>
+        <text x="250" y="68" text-anchor="middle" fill="#64748b" font-family="Inter,sans-serif" font-size="8">Markets trust us</text>
+
+        <rect x="340" y="155" width="120" height="50" rx="10" fill="#0f1219" stroke="#3b82f6" stroke-width="1.5"/>
+        <text x="400" y="178" text-anchor="middle" fill="#3b82f6" font-family="Inter,sans-serif" font-size="10" font-weight="700">Better Data</text>
+        <text x="400" y="193" text-anchor="middle" fill="#64748b" font-family="Inter,sans-serif" font-size="8">Labeled outcomes</text>
+
+        <rect x="195" y="280" width="110" height="50" rx="10" fill="#0f1219" stroke="#a855f7" stroke-width="1.5"/>
+        <text x="250" y="303" text-anchor="middle" fill="#a855f7" font-family="Inter,sans-serif" font-size="10" font-weight="700">Smarter Agents</text>
+        <text x="250" y="318" text-anchor="middle" fill="#64748b" font-family="Inter,sans-serif" font-size="8">DPO training</text>
+
+        <rect x="40" y="155" width="130" height="50" rx="10" fill="#0f1219" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="105" y="178" text-anchor="middle" fill="#fbbf24" font-family="Inter,sans-serif" font-size="10" font-weight="700">Higher Accuracy</text>
+        <text x="105" y="193" text-anchor="middle" fill="#64748b" font-family="Inter,sans-serif" font-size="8">Calibrated consensus</text>
+
+        <!-- Center -->
+        <circle cx="250" cy="180" r="30" fill="#0a0d14" stroke="rgba(0,240,255,0.3)" stroke-width="1"/>
+        <text x="250" y="176" text-anchor="middle" fill="#f1f5f9" font-family="Inter,sans-serif" font-size="9" font-weight="700">DATA</text>
+        <text x="250" y="190" text-anchor="middle" fill="#f1f5f9" font-family="Inter,sans-serif" font-size="9" font-weight="700">FLYWHEEL</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<div class="container"><div class="divider"></div></div>
+
+<!-- ══════════ HACKATHON TARGETS ══════════ -->
+<section class="container" style="padding:6rem 0;">
+  <div class="anim">
+    <div style="text-align:center;margin-bottom:3rem;">
+      <span class="badge badge-blue" style="margin-bottom:1rem;">Submissions</span>
+      <h2>Hackathon <span class="text-gradient">Targets</span></h2>
+    </div>
+    <div class="hackathon-grid">
+      <div class="card hackathon-card">
+        <span class="badge badge-cyan" style="margin-bottom:0.5rem;">Primary</span>
+        <div class="date">May 11 &ndash; 28, 2026</div>
+        <h3>DevNetwork AI+ML</h3>
+        <p>Full pipeline demo: multi-agent verification with calibration-weighted consensus, deployed on Base Sepolia.</p>
+        <div class="focus"><strong style="color:var(--text-primary);">Focus:</strong> Accuracy advantage over single-agent &amp; simple majority approaches.</div>
+      </div>
+      <div class="card hackathon-card">
+        <span class="badge badge-green" style="margin-bottom:0.5rem;">Secondary</span>
+        <div class="date">TBD &mdash; Global</div>
+        <h3>Kite AI Hackathon</h3>
+        <p>Agent-native chain deployment. Leverage Kite's built-in agent registry and payment channels.</p>
+        <div class="focus"><strong style="color:var(--text-primary);">Focus:</strong> Chain-native agent identity with soulbound reputation tokens.</div>
+      </div>
+      <div class="card hackathon-card">
+        <span class="badge badge-purple" style="margin-bottom:0.5rem;">Stretch</span>
+        <div class="date">TBD &mdash; Online</div>
+        <h3>ETHGlobal</h3>
+        <p>ZK proof of calibration scores &mdash; verify agent reputation without revealing individual predictions.</p>
+        <div class="focus"><strong style="color:var(--text-primary);">Focus:</strong> Privacy-preserving reputation via zero-knowledge proofs.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container"><div class="divider"></div></div>
+
+<!-- ══════════ KEY STATS ══════════ -->
+<section class="container" style="padding:4rem 0;">
+  <p style="text-align:center;font-size:0.75rem;color:var(--text-muted);margin-bottom:1rem;font-family:var(--font-mono);letter-spacing:0.04em;">ILLUSTRATIVE &mdash; FROM INTERNAL TESTING</p>
+  <div class="anim" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;">
+    <div class="card" style="text-align:center;padding:2rem;">
+      <div class="stat-value text-gradient">9</div>
+      <div class="stat-label">Running Agents</div>
+    </div>
+    <div class="card" style="text-align:center;padding:2rem;">
+      <div class="stat-value" style="color:var(--neon-green);">0.12</div>
+      <div class="stat-label">Best Brier Score</div>
+    </div>
+    <div class="card" style="text-align:center;padding:2rem;">
+      <div class="stat-value text-gradient-warm">&lt;60s</div>
+      <div class="stat-label">Resolution Time</div>
+    </div>
+    <div class="card" style="text-align:center;padding:2rem;">
+      <div class="stat-value" style="color:var(--neon-purple);">6mo</div>
+      <div class="stat-label">Existing Infra</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <div class="container">
+    <p style="font-size:0.95rem;color:var(--text-secondary);margin-bottom:0.5rem;">
+      <span class="text-gradient" style="font-weight:700;">Swarm Oracle</span> &mdash;
+      The Chainlink of Prediction Markets
+    </p>
+    <p style="font-size:0.8rem;color:var(--text-muted);">
+      Built by Eshaan &middot; Powered by calibration, not capital
+    </p>
+    <div style="margin-top:1.5rem;display:flex;justify-content:center;gap:1rem;">
+      <a href="architecture.html" class="btn btn-outline" style="font-size:0.75rem;padding:0.5rem 1rem;">Architecture</a>
+      <a href="demo.html" class="btn btn-ghost" style="font-size:0.75rem;padding:0.5rem 1rem;">Demo</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════ SCROLL ANIMATION JS ══════════ -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Intersection Observer for scroll animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.anim').forEach(el => observer.observe(el));
+
+  // Smooth scroll for nav links
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // Parallax on hero orbs
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        const scrollY = window.scrollY;
+        const orbs = document.querySelectorAll('.hero-orb');
+        orbs.forEach((orb, i) => {
+          const speed = 0.1 + (i * 0.05);
+          orb.style.transform = `translateY(${scrollY * speed}px)`;
+        });
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+});
+</script>
+</body>
+</html>
