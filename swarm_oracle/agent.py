@@ -8,7 +8,7 @@ Each agent has:
       evidence — e.g. "web_search", "api", "knowledge".
     - A `llm_call` callable that takes a prompt and returns the raw model text.
 
-The default LLM call hits local Gemma4 on :8090. All defaults can be overridden
+The default LLM call hits a local OpenAI-compatible server (set LLM_API_URL). All defaults can be overridden
 for tests, ablations, or post-hackathon experimentation.
 
 `default_swarm()` constructs a 3-agent fleet that uses two distinct research
@@ -17,6 +17,7 @@ strategies (web search + API + knowledge), satisfying the Week 1 DoD.
 from __future__ import annotations
 
 import json
+import os
 import logging
 import re
 import urllib.request
@@ -28,8 +29,8 @@ from .evidence import coingecko_price_evidence, duckduckgo_search
 
 log = logging.getLogger("swarm_oracle.agent")
 
-LLAMA_URL = "http://127.0.0.1:8090/v1/chat/completions"
-LLAMA_MODEL = "gemma4"  # LiteLLM alias / llama.cpp accepts any name
+LLAMA_URL = os.environ.get("LLM_API_URL", "http://127.0.0.1:8080/v1/chat/completions")
+LLAMA_MODEL = os.environ.get("LLM_MODEL", "default")  # model name sent to the server
 LLAMA_TIMEOUT = 90  # seconds per call
 
 

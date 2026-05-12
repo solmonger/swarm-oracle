@@ -2,44 +2,27 @@
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
 *.egg-info/
-*.egg
 dist/
 build/
-.eggs/
-*.whl
-
-# Virtual environments
-venv/
 .venv/
-env/
-.env
+venv/
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+# Foundry
+contracts/out/
+contracts/cache/
+contracts/lib/
+
+# Environment
+.env
+.env.local
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Testing / Coverage
-.pytest_cache/
-htmlcov/
-.coverage
-.coverage.*
-.tox/
-
-# Foundry / Solidity
-contracts/out/
-contracts/cache/
-contracts/broadcast/
-
-# Secrets — never commit
-.env.local
-*.key
-*.pem
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

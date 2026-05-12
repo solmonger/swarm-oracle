@@ -1,0 +1,38 @@
+[project]
+name = "swarm-oracle"
+version = "0.1.0"
+description = "Calibration-weighted AI prediction oracle — multi-agent consensus using Brier scores"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Eshaan Mathakari"},
+]
+keywords = ["oracle", "prediction-markets", "llm", "calibration", "brier-score", "consensus"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = []  # stdlib only — zero external deps
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "httpx>=0.24"]
+chain = ["web3>=6.0"]
+api = ["fastapi>=0.100", "uvicorn[standard]>=0.20", "httpx>=0.24"]
+
+[project.scripts]
+swarm-oracle = "swarm_oracle.cli:main"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

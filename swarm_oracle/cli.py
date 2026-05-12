@@ -134,6 +134,10 @@ def main(argv: list[str] | None = None) -> int:
         "--json", action="store_true", help="Emit machine-readable JSON instead"
     )
     parser.add_argument(
+        "--demo", action="store_true",
+        help="Use canned responses (no LLM server needed) — for demo recordings",
+    )
+    parser.add_argument(
         "--on-chain", action="store_true", help="Submit votes on-chain after local consensus"
     )
     parser.add_argument("--rpc", default=None, help="RPC URL for on-chain submission")
@@ -151,7 +155,11 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     try:
-        result = run_swarm(args.question)
+        if args.demo:
+            from .demo_mode import demo_run
+            result = demo_run(args.question)
+        else:
+            result = run_swarm(args.question)
     except Exception as exc:  # noqa: BLE001
         print(f"swarm_oracle: failed to run swarm: {exc}", file=sys.stderr)
         return 1
@@ -163,7 +171,15 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.on_chain:
         from .on_chain import load_agent_registry, submit_result, verify_parity
-        from contracts.bridge import SwarmBridge
+
+        try:
+            from contracts.bridge import SwarmBridge
+        except ImportError:
+            print(
+                "On-chain submission requires web3.py: pip install 'swarm-oracle[chain]'",
+                file=sys.stderr,
+            )
+            return 1
 
         bridge = SwarmBridge(rpc_url=args.rpc)
         bridge.set_addresses(registry=args.registry_addr, consensus=args.consensus_addr)
