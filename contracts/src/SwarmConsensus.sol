@@ -51,7 +51,7 @@ contract SwarmConsensus {
     // Storage
     // -----------------------------------------------------------------------
 
-    CalibrationRegistry public immutable REGISTRY;
+    CalibrationRegistry public immutable registry;
     address public owner;
     mapping(address => bool) public submitters;
 
@@ -78,24 +78,16 @@ contract SwarmConsensus {
     // -----------------------------------------------------------------------
 
     modifier onlyOwner() {
-        _onlyOwner();
+        require(msg.sender == owner, "SwarmConsensus: not owner");
         _;
     }
 
     modifier onlySubmitter() {
-        _onlySubmitter();
-        _;
-    }
-
-    function _onlyOwner() internal view {
-        require(msg.sender == owner, "SwarmConsensus: not owner");
-    }
-
-    function _onlySubmitter() internal view {
         require(
             submitters[msg.sender] || msg.sender == owner,
             "SwarmConsensus: not submitter"
         );
+        _;
     }
 
     // -----------------------------------------------------------------------
@@ -103,7 +95,7 @@ contract SwarmConsensus {
     // -----------------------------------------------------------------------
 
     constructor(address _registry) {
-        REGISTRY = CalibrationRegistry(_registry);
+        registry = CalibrationRegistry(_registry);
         owner = msg.sender;
         submitters[msg.sender] = true;
     }
@@ -148,7 +140,7 @@ contract SwarmConsensus {
         uint256 n = agentAddrs.length;
 
         // --- Fetch weights from CalibrationRegistry ---
-        uint256[] memory weights = REGISTRY.computeWeights(agentAddrs);
+        uint256[] memory weights = registry.computeWeights(agentAddrs);
 
         // --- Compute total weight ---
         uint256 totalWeight = 0;

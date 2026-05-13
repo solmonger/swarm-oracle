@@ -66,24 +66,16 @@ contract CalibrationRegistry {
     // -----------------------------------------------------------------------
 
     modifier onlyOwner() {
-        _onlyOwner();
+        require(msg.sender == owner, "CalibrationRegistry: not owner");
         _;
     }
 
     modifier onlyUpdater() {
-        _onlyUpdater();
-        _;
-    }
-
-    function _onlyOwner() internal view {
-        require(msg.sender == owner, "CalibrationRegistry: not owner");
-    }
-
-    function _onlyUpdater() internal view {
         require(
             updaters[msg.sender] || msg.sender == owner,
             "CalibrationRegistry: not updater"
         );
+        _;
     }
 
     // -----------------------------------------------------------------------

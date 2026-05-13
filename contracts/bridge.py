@@ -272,16 +272,6 @@ def from_wad(x: int) -> float:
     return x / WAD
 
 
-DEPLOYED_BASE_SEPOLIA = {
-    "chain_id": 84532,
-    "registry": "0x42987D1753e6290B68273Ff8310E7f8248290890",
-    "consensus": "0xF0F393D1bFA815537F9FcfC6e6520e0379A1071a",
-    "rewards": "0xa9B3bB31dbe15DD26031Fe899284F267308D625B",
-    "identity": "0x5bD8b36214d002cB250Be1c9a82022875331b947",
-    "deployer": "0xF822f19C0FEc804f002e9087523677195a3C96cE",
-}
-
-
 class SwarmBridge:
     """Bridge between Python swarm_oracle and on-chain contracts."""
 

@@ -1,0 +1,108 @@
+==============================================
+  Swarm Oracle Demo Recording
+  Output: /Users/operator/Desktop/hackathon/swarm-oracle/demo-recording.txt
+==============================================
+
+This will run three demo queries showing:
+  1. Crypto question (BTC price verification)
+  2. Sports question (match prediction)
+  3. JSON output mode
+
+Starting in 2 seconds...
+[3J[H[2J$ # Swarm Oracle — Calibration-Weighted Multi-Agent Prediction Oracle
+$ # Three AI agents independently research a question, then we combine
+$ # their votes weighted by historical prediction accuracy (Brier score).
+
+$ # Demo 1: Crypto price verification
+$ python swarm_verify.py --demo "Did BTC close above $100K on May 5, 2026?"
+
+========================================================================
+  SWARM ORACLE  |  Calibration-Weighted Consensus
+========================================================================
+Question : Did BTC close above $100K on May 5, 2026?
+Agents   : 3
+Elapsed  : 1.35s
+
+Individual votes:
+  agent-oracle     | strategy=api         | P(YES)=0.030 | conf=0.90 | weight=  9.90 ( 60.3%) ████████████········
+      reasoning: CoinGecko API shows BTC at $81,224 as of May 12 — well below $100K. 30-day trend is +3.2% but would need a 23% surge to reach the target.
+      evidence : [api] CoinGecko API → Bitcoin (BTC): $81,224.00 USD. 24h change: +1.4%. 30d change: +3.2%. Market cap: $1.61T. Volume: $28.4B.
+  agent-reliable   | strategy=web_search  | P(YES)=0.050 | conf=0.80 | weight=  5.52 ( 33.6%) ███████·············
+      reasoning: Multiple sources confirm BTC trading around $81K. Analyst consensus suggests resistance at $85K. No catalyst identified for a $100K breakout.
+      evidence : [web] search:bitcoin price forecast → Bitcoin hovers near $81K as traders await Fed minutes. Key resistance at $85K with support at $78K. Institutional flows remain neutral af...
+  agent-novice     | strategy=knowledge   | P(YES)=0.500 | conf=0.00 | weight=  1.00 (  6.1%) █···················
+      reasoning: No real-time data available. Bitcoin has historically traded between $60K-$110K in 2026. Cannot assess current price without evidence.
+
+Consensus:
+  Weighted P(YES) = 0.0652
+  Variance        = 0.0123
+  Decision        = NO
+========================================================================
+
+$ # Notice: agent-oracle (Brier 0.08, 220 predictions) gets 60% weight
+$ # while agent-novice (no track record) gets only 6%. Accuracy earns influence.
+
+$ # Demo 2: Sports match prediction
+$ python swarm_verify.py --demo "Will Barcelona win the match against Alaves?"
+
+========================================================================
+  SWARM ORACLE  |  Calibration-Weighted Consensus
+========================================================================
+Question : Will Barcelona win the match against Alaves?
+Agents   : 3
+Elapsed  : 1.34s
+
+Individual votes:
+  agent-oracle     | strategy=api         | P(YES)=0.720 | conf=0.85 | weight=  9.90 ( 60.3%) ████████████········
+      reasoning: Historical H2H record shows the favorite winning 7 of last 10 meetings. Current form: W-W-D-W-L in last 5 matches.
+      evidence : [api] Sports API → Head-to-head: 7W-1D-2L in last 10. Home team xG: 1.82. Away team xG: 1.14. Odds: 1.65 / 3.80 / 5.50.
+  agent-reliable   | strategy=web_search  | P(YES)=0.650 | conf=0.70 | weight=  5.52 ( 33.6%) ███████·············
+      reasoning: Pre-match analysis and recent form favor the home team but away side has shown improved defensive structure in recent weeks.
+      evidence : [web] search:match preview analysis → Expected tight contest. Home advantage significant in this fixture historically. Key absences on both sides may affect outcome.
+  agent-novice     | strategy=knowledge   | P(YES)=0.550 | conf=0.20 | weight=  1.00 (  6.1%) █···················
+      reasoning: Without current season data, relying on general knowledge of the teams. Slight lean toward the historically stronger side.
+
+Consensus:
+  Weighted P(YES) = 0.6861
+  Variance        = 0.0023
+  Decision        = DISPUTE
+  Note            = weighted probability 0.686 between thresholds [0.15, 0.85]
+========================================================================
+
+$ # Demo 3: Machine-readable JSON output
+$ python swarm_verify.py --demo --json "Will it rain in Zurich tomorrow?" | python3 -m json.tool | head -20
+
+{
+    "question": "Will it rain in Zurich tomorrow?",
+    "elapsed_seconds": 1.2,
+    "consensus": {
+        "probability": 0.1819846122710337,
+        "decision": "DISPUTE",
+        "variance": 0.003608805459132652,
+        "dispute_reason": "weighted probability 0.182 between thresholds [0.15, 0.85]",
+        "num_votes": 3
+    },
+    "contributions": [
+        {
+            "agent_id": "agent-oracle",
+            "probability": 0.15,
+            "weight": 9.900990099009901,
+            "normalized_weight": 0.6029149759960718
+        },
+        {
+            "agent_id": "agent-reliable",
+            "probability": 0.2,
+
+$ # Full test suite (133 Python + 57 Solidity tests passing)
+$ python3 -m pytest tests/ --tb=short -q
+
+........................................................................ [ 52%]
+..................................sss...........................         [100%]
+133 passed, 3 skipped in 8.85s
+
+$ # Swarm Oracle: calibration-weighted consensus where accuracy is earned, not bought.
+$ # MIT licensed. Zero external dependencies. Runs on consumer hardware.
+
+==============================================
+  Demo complete! Recording saved to /Users/operator/Desktop/hackathon/swarm-oracle/demo-recording.txt
+==============================================

@@ -40,43 +40,21 @@ Consensus:
 
 ```bash
 # Clone
-git clone https://github.com/eshaan-mathakari/swarm-oracle.git
+git clone https://github.com/SolMonger/swarm-oracle.git
 cd swarm-oracle
 
-# Install in editable mode (zero runtime deps; tests require pytest)
-pip install -e .
-
-# --- Demo mode (no LLM, no network needed) ---
-python3 -m swarm_oracle.cli --demo "Will BTC hit 100k?"
-
-# Or via the convenience entry-point
-python3 swarm_verify.py --demo "Will BTC hit 100k?"
-
-# Three-question recorded demo
-bash record-demo.sh   # writes demo-recording.txt
-# Pre-recorded asciinema cast: demo/swarm-oracle-demo.cast
-# Replay: asciinema play demo/swarm-oracle-demo.cast
-
-# --- Live mode (requires an OpenAI-compatible LLM server) ---
+# Run (requires an OpenAI-compatible LLM server)
 export LLM_API_URL="http://localhost:8080/v1/chat/completions"
-python3 swarm_verify.py "Will ETH close above $3,000 on June 1, 2026?"
+python swarm_verify.py "Will ETH close above $3,000 on June 1, 2026?"
 
-# JSON output (machine-readable)
-python3 swarm_verify.py --demo --json "Will BTC be above $100K tomorrow?"
+# JSON output
+python swarm_verify.py --json "Will BTC be above $100K tomorrow?"
 
 # With on-chain submission (requires web3.py + deployed contracts)
-python3 swarm_verify.py --on-chain \
-  --registry-addr 0x42987D1753e6290B68273Ff8310E7f8248290890 \
-  --consensus-addr 0xF0F393D1bFA815537F9FcfC6e6520e0379A1071a \
+python swarm_verify.py --on-chain \
+  --registry-addr 0x... --consensus-addr 0x... \
   "Did ETH close above $3,500 on May 10?"
 ```
-
-### Demo output (verified 2026-05-12)
-
-`python3 -m swarm_oracle.cli --demo "Will BTC hit 100k?"` returns three
-deterministic agent votes (BTC ≈ $81K), a weighted consensus probability of
-~0.07, variance ~0.012, and decision `NO` — finished in <2s. The `--json`
-flag emits the same data as a single JSON object.
 
 ### LLM Server
 
@@ -87,6 +65,31 @@ Swarm Oracle works with any OpenAI-compatible chat completions endpoint. Set `LL
 - [vLLM](https://github.com/vllm-project/vllm) — `python -m vllm.entrypoints.openai.api_server`
 
 No API keys needed. No paid services required.
+
+### Docker (One Command)
+
+```bash
+# API server with interactive docs
+docker compose up                         # → http://localhost:8000/docs
+
+# Quick demo (no LLM needed)
+docker compose run oracle demo
+
+# Run the full test suite
+docker compose run oracle test
+
+# Or without compose:
+docker build -t swarm-oracle .
+docker run -p 8000:8000 swarm-oracle
+```
+
+### Testing
+
+```bash
+make test               # 154 Python tests
+make test-solidity      # 55 Foundry tests
+make test-integration   # end-to-end pipeline tests
+```
 
 ## Architecture
 
@@ -170,7 +173,7 @@ swarm-oracle/
 │   │   └── AgentIdentity.t.sol       # Foundry tests — identity
 │   └── script/
 │       └── Deploy.s.sol              # Full-suite deployment (all 4 contracts)
-├── tests/                       # Python test suite (133 tests, 3 skipped)
+├── tests/                       # Python test suite (115+ tests)
 ├── docs/
 │   └── DEPLOYMENT.md            # Base Sepolia deployment guide
 └── examples/
@@ -233,40 +236,19 @@ Interactive docs at `http://localhost:8000/docs` (Swagger UI) or `/redoc`.
 ## Running Tests
 
 ```bash
-# Python tests — 133 passing, 3 intentionally skipped (~8s)
-python3 -m pytest tests/ -v
+# Python tests (115+ tests, ~1.5s)
+python -m pytest tests/ -v
 
-# Solidity tests — 57 passing (requires Foundry)
-cd contracts && forge test -vv
+# Solidity tests (requires Foundry)
+cd contracts && forge test -v
 
 # Cross-verification: Python↔Solidity math parity
-python3 -m pytest tests/test_solidity_math_parity.py -v
+python -m pytest contracts/test/test_solidity_math_parity.py -v
 ```
-
-### Test counts (last verified 2026-05-12)
-
-| Suite                      | Passing | Skipped | Notes                                       |
-|----------------------------|---------|---------|---------------------------------------------|
-| Solidity (`forge test`)    | 57      | 0       | 4 test files, full coverage of all contracts |
-| Python (`pytest tests/`)   | 133     | 3       | Skipped tests are intentional placeholders   |
-| `forge build` warnings     | 0       | —       | Zero lint warnings                           |
 
 ## Contracts
 
-Deployed on **Base Sepolia** testnet (chain ID 84532).
-
-### Deployed Contracts
-
-| Contract | Address |
-|----------|---------|
-| CalibrationRegistry | [`0x42987D1753e6290B68273Ff8310E7f8248290890`](https://sepolia.basescan.org/address/0x42987D1753e6290B68273Ff8310E7f8248290890) |
-| SwarmConsensus | [`0xF0F393D1bFA815537F9FcfC6e6520e0379A1071a`](https://sepolia.basescan.org/address/0xF0F393D1bFA815537F9FcfC6e6520e0379A1071a) |
-| RewardDistribution | [`0xa9B3bB31dbe15DD26031Fe899284F267308D625B`](https://sepolia.basescan.org/address/0xa9B3bB31dbe15DD26031Fe899284F267308D625B) |
-| AgentIdentity | [`0x5bD8b36214d002cB250Be1c9a82022875331b947`](https://sepolia.basescan.org/address/0x5bD8b36214d002cB250Be1c9a82022875331b947) |
-
-Deployer: [`0xF822f19C0FEc804f002e9087523677195a3C96cE`](https://sepolia.basescan.org/address/0xF822f19C0FEc804f002e9087523677195a3C96cE)
-
-### Contract Details
+Deployed on **Base Sepolia** testnet.
 
 | Contract | Description |
 |----------|-------------|

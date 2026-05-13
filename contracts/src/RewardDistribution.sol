@@ -38,8 +38,8 @@ contract RewardDistribution {
     // Immutables & state
     // -----------------------------------------------------------------------
 
-    CalibrationRegistry public immutable REGISTRY;
-    SwarmConsensus public immutable CONSENSUS;
+    CalibrationRegistry public immutable registry;
+    SwarmConsensus public immutable consensus;
 
     address public owner;
     mapping(address => bool) public distributors;
@@ -82,24 +82,16 @@ contract RewardDistribution {
     // -----------------------------------------------------------------------
 
     modifier onlyOwner() {
-        _onlyOwner();
+        require(msg.sender == owner, "RewardDistribution: not owner");
         _;
     }
 
     modifier onlyDistributor() {
-        _onlyDistributor();
-        _;
-    }
-
-    function _onlyOwner() internal view {
-        require(msg.sender == owner, "RewardDistribution: not owner");
-    }
-
-    function _onlyDistributor() internal view {
         require(
             distributors[msg.sender] || msg.sender == owner,
             "RewardDistribution: not distributor"
         );
+        _;
     }
 
     // -----------------------------------------------------------------------
@@ -107,8 +99,8 @@ contract RewardDistribution {
     // -----------------------------------------------------------------------
 
     constructor(address _registry, address _consensus) {
-        REGISTRY = CalibrationRegistry(_registry);
-        CONSENSUS = SwarmConsensus(_consensus);
+        registry = CalibrationRegistry(_registry);
+        consensus = SwarmConsensus(_consensus);
         owner = msg.sender;
         distributors[msg.sender] = true;
     }
@@ -168,19 +160,19 @@ contract RewardDistribution {
             uint256 numVotes,
             ,  // resolvedAt
             bool resolved
-        ) = CONSENSUS.getResult(questionId);
+        ) = consensus.getResult(questionId);
         require(resolved, "RewardDistribution: not resolved");
         require(numVotes > 0, "RewardDistribution: no votes");
 
         // Get votes
-        SwarmConsensus.Vote[] memory votes = CONSENSUS.getVotes(questionId);
+        SwarmConsensus.Vote[] memory votes = consensus.getVotes(questionId);
 
         // Fetch weights from registry
         address[] memory agentAddrs = new address[](votes.length);
         for (uint256 i = 0; i < votes.length; i++) {
             agentAddrs[i] = votes[i].agent;
         }
-        uint256[] memory weights = REGISTRY.computeWeights(agentAddrs);
+        uint256[] memory weights = registry.computeWeights(agentAddrs);
 
         // Compute total weight
         uint256 totalWeight = 0;
@@ -195,6 +187,7 @@ contract RewardDistribution {
 
         if (decision == SwarmConsensus.Decision.YES || decision == SwarmConsensus.Decision.NO) {
             for (uint256 i = 0; i < votes.length; i++) {
+                bool agentSaidYes = votes[i].probability >= consensusProb;
                 // More nuanced: reward agents closer to consensus
                 // "Correct" = within 0.15 of consensus probability
                 uint256 diff;
@@ -210,47 +203,16 @@ contract RewardDistribution {
                 }
             }
         }
-        // --- Split pool & credit rewards (extracted to avoid stack-too-deep) ---
+        // If DISPUTE or no agents were "correct", all accuracy pool goes by weight
+        bool hasCorrect = correctWeight > 0;
+
+        // --- Split pool ---
         uint256 basePool = (pool * BASE_POOL_FRACTION) / WAD;
         uint256 accuracyPool = pool - basePool;  // avoids rounding dust
 
-        uint256 totalCredited = _creditRewards(
-            questionId, agentAddrs, weights, correct,
-            totalWeight, correctWeight, basePool, accuracyPool
-        );
+        uint256 totalCredited = 0;
 
-        // Mark as distributed
-        distributed[questionId] = true;
-        totalDistributed += totalCredited;
-
-        distributions[questionId] = DistributionRecord({
-            questionId: questionId,
-            poolSize: pool,
-            numRecipients: votes.length,
-            distributedAt: block.timestamp
-        });
-        distributionHistory.push(questionId);
-
-        emit RewardsDistributed(questionId, pool, votes.length);
-    }
-
-    // -----------------------------------------------------------------------
-    // Internal — reward crediting (extracted to avoid stack-too-deep)
-    // -----------------------------------------------------------------------
-
-    function _creditRewards(
-        bytes32 questionId,
-        address[] memory agentAddrs,
-        uint256[] memory weights,
-        bool[] memory correct,
-        uint256 totalWeight,
-        uint256 correctWeight,
-        uint256 basePool,
-        uint256 accuracyPool
-    ) internal returns (uint256 totalCredited) {
-        bool hasCorrect = correctWeight > 0;
-
-        for (uint256 i = 0; i < agentAddrs.length; i++) {
+        for (uint256 i = 0; i < votes.length; i++) {
             uint256 reward = 0;
 
             // Base reward: proportional to weight
@@ -271,6 +233,20 @@ contract RewardDistribution {
                 emit AgentRewarded(questionId, agentAddrs[i], reward);
             }
         }
+
+        // Mark as distributed
+        distributed[questionId] = true;
+        totalDistributed += totalCredited;
+
+        distributions[questionId] = DistributionRecord({
+            questionId: questionId,
+            poolSize: pool,
+            numRecipients: votes.length,
+            distributedAt: block.timestamp
+        });
+        distributionHistory.push(questionId);
+
+        emit RewardsDistributed(questionId, pool, votes.length);
     }
 
     // -----------------------------------------------------------------------

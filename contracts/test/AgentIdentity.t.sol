@@ -115,7 +115,7 @@ contract AgentIdentityTest {
         require(registeredInCalibration, "should be registered");
     }
 
-    function test_getAgentProfile_noToken() public view {
+    function test_getAgentProfile_noToken() public {
         (
             , , , , , ,
             bool hasToken,
@@ -144,7 +144,7 @@ contract AgentIdentityTest {
         } catch {}
     }
 
-    function test_setApprovalForAll_blocked() public view {
+    function test_setApprovalForAll_blocked() public {
         try identity.setApprovalForAll(address(0x2), true) {
             revert("setApprovalForAll should be blocked");
         } catch {}
@@ -155,7 +155,7 @@ contract AgentIdentityTest {
         require(identity.getApproved(1) == address(0), "getApproved should return zero");
     }
 
-    function test_isApprovedForAll_returnsFalse() public view {
+    function test_isApprovedForAll_returnsFalse() public {
         require(!identity.isApprovedForAll(address(0x1), address(0x2)), "should be false");
     }
 
@@ -198,13 +198,13 @@ contract AgentIdentityTest {
         require(identity.agentToToken(address(0x2)) == 2, "agent 2 should have token 2");
     }
 
-    function test_ownerOf_revert_nonexistent() public view {
+    function test_ownerOf_revert_nonexistent() public {
         try identity.ownerOf(999) {
             revert("should revert on nonexistent token");
         } catch {}
     }
 
-    function test_tokenURI_revert_nonexistent() public view {
+    function test_tokenURI_revert_nonexistent() public {
         try identity.tokenURI(999) {
             revert("should revert on nonexistent token");
         } catch {}

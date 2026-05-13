@@ -1,0 +1,13 @@
+# docker compose up → API on http://localhost:8000, docs on /docs
+# docker compose run oracle demo → CLI demo (no LLM needed)
+# docker compose run oracle test → full test suite
+
+services:
+  oracle:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - LLM_API_URL=${LLM_API_URL:-}
+    volumes:
+      - ./demo.html:/app/demo.html:ro

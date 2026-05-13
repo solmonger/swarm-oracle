@@ -26,23 +26,14 @@ contract AgentIdentity {
     // ERC-721 metadata
     // -----------------------------------------------------------------------
 
-    // ERC-721 metadata fields (lowercase to match ERC-721 interface).
-    // Lint exception: the ERC-721 spec mandates these exact identifiers, so
-    // SCREAMING_SNAKE_CASE would break interface conformance.
-    // solhint-disable-next-line const-name-snakecase
-    string public constant NAME = "Swarm Oracle Agent";
-    // solhint-disable-next-line const-name-snakecase
-    string public constant SYMBOL = "SWARM-AGENT";
-
-    /// @notice ERC-721 compatibility getters (lower-case as required by spec).
-    function name() external pure returns (string memory) { return NAME; }
-    function symbol() external pure returns (string memory) { return SYMBOL; }
+    string public constant name = "Swarm Oracle Agent";
+    string public constant symbol = "SWARM-AGENT";
 
     // -----------------------------------------------------------------------
     // Storage
     // -----------------------------------------------------------------------
 
-    CalibrationRegistry public immutable REGISTRY;
+    CalibrationRegistry public immutable registry;
     address public owner;
 
     struct AgentToken {
@@ -78,12 +69,8 @@ contract AgentIdentity {
     // -----------------------------------------------------------------------
 
     modifier onlyOwner() {
-        _onlyOwner();
-        _;
-    }
-
-    function _onlyOwner() internal view {
         require(msg.sender == owner, "AgentIdentity: not owner");
+        _;
     }
 
     // -----------------------------------------------------------------------
@@ -91,7 +78,7 @@ contract AgentIdentity {
     // -----------------------------------------------------------------------
 
     constructor(address _registry) {
-        REGISTRY = CalibrationRegistry(_registry);
+        registry = CalibrationRegistry(_registry);
         owner = msg.sender;
         _nextTokenId = 1;  // Token IDs start at 1
     }
@@ -139,11 +126,11 @@ contract AgentIdentity {
     function mintBatch(
         address[] calldata agentAddresses,
         string[] calldata labels,
-        string[] calldata metadataUris
+        string[] calldata metadataURIs
     ) external onlyOwner returns (uint256[] memory tokenIds) {
         require(
             agentAddresses.length == labels.length &&
-            labels.length == metadataUris.length,
+            labels.length == metadataURIs.length,
             "AgentIdentity: length mismatch"
         );
 
@@ -158,7 +145,7 @@ contract AgentIdentity {
             tokens[tokenId] = AgentToken({
                 agentAddress: agentAddresses[i],
                 label: labels[i],
-                metadataURI: metadataUris[i],
+                metadataURI: metadataURIs[i],
                 mintedAt: block.timestamp,
                 exists: true
             });
@@ -242,8 +229,8 @@ contract AgentIdentity {
         }
 
         // Pull live stats from CalibrationRegistry
-        (brierScore, numPredictions, , registeredInCalibration) = REGISTRY.getAgent(agentAddress);
-        calibrationWeight = REGISTRY.computeWeight(agentAddress);
+        (brierScore, numPredictions, , registeredInCalibration) = registry.getAgent(agentAddress);
+        calibrationWeight = registry.computeWeight(agentAddress);
     }
 
     // -----------------------------------------------------------------------

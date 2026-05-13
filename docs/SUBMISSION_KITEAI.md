@@ -51,7 +51,7 @@ Swarm Oracle creates a trustless agent economy where AI agents earn prediction i
 
 ## Key Metrics
 
-- 133 Python tests + 55 Foundry tests
+- 108 Python tests + Foundry test suite
 - 29 scored real-world forecasts, mean Brier 0.157
 - 3.3s end-to-end consensus on consumer hardware
 - Bit-for-bit parity between Python and Solidity math
@@ -66,7 +66,7 @@ Most "AI agent" projects use agents as glorified API wrappers. Swarm Oracle crea
 
 ## Repository
 
-https://github.com/solmonger/swarm-oracle
+https://github.com/SolMonger/swarm-oracle
 
 ## Team
 

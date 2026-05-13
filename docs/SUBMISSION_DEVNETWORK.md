@@ -45,8 +45,8 @@ Key innovations:
 - `AgentIdentity.sol` — soulbound ERC-721 reputation tokens
 
 **Testing:**
-- 133 Python tests (consensus math, weights, agents, API, on-chain bridge, demo mode)
-- 55 Foundry tests across all 4 contracts
+- 108 Python tests (consensus math, weights, agents, API, on-chain bridge, demo mode)
+- Foundry test suite for all 4 contracts
 - 14 cross-verification parity tests (Python ↔ Solidity math match)
 
 **Infrastructure:**
@@ -79,7 +79,7 @@ Eshaan Mathakari — solo developer
 
 ## Repository
 
-https://github.com/solmonger/swarm-oracle
+https://github.com/SolMonger/swarm-oracle
 
 ## What's Novel
 
