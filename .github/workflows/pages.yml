@@ -1,0 +1,78 @@
+name: Deploy GitHub Pages
+
+# Publish the static landing page (index.html) and bundled assets
+# (demo.html, benchmark.html, docs/architecture.svg, JUDGES.md) on every
+# push to main. Uses the modern actions/deploy-pages workflow, which
+# bypasses the legacy Jekyll build entirely.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'demo.html'
+      - 'benchmark.html'
+      - 'benchmark.json'
+      - 'JUDGES.md'
+      - 'README.md'
+      - 'docs/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, but don't cancel in-progress runs.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Stage site contents
+        run: |
+          mkdir -p _site
+          # Required landing page
+          cp index.html _site/
+          # Interactive demo + benchmark report
+          cp demo.html _site/ 2>/dev/null || true
+          cp benchmark.html _site/ 2>/dev/null || true
+          cp benchmark.json _site/ 2>/dev/null || true
+          # Judges quickstart
+          cp JUDGES.md _site/
+          # README (rendered by Pages markdown fallback if linked)
+          cp README.md _site/
+          # Docs (architecture SVG + submission notes)
+          mkdir -p _site/docs
+          cp -r docs/* _site/docs/ 2>/dev/null || true
+          # .nojekyll prevents GH Pages from trying to Jekyll-process
+          # our raw HTML/SVG and stripping leading underscores.
+          touch _site/.nojekyll
+          echo "--- staged ---"
+          ls -la _site/
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

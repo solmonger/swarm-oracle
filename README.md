@@ -2,6 +2,10 @@
 
 **Calibration-weighted multi-agent prediction oracle.**
 
+> **Live demo:** [solmonger.github.io/swarm-oracle](https://solmonger.github.io/swarm-oracle/) &middot;
+> **Video:** [90-second walkthrough](https://youtu.be/Dy1h0Hcr4HQ) &middot;
+> **Hackathon judges:** start with [`JUDGES.md`](JUDGES.md)
+
 Swarm Oracle runs multiple AI agents in parallel on the same yes/no question, then combines their probability estimates using calibration weights derived from each agent's historical [Brier score](https://en.wikipedia.org/wiki/Brier_score). Better-calibrated agents get more influence. The result is a consensus probability that outperforms any single agent or naive majority vote.
 
 On-chain contracts on Base Sepolia mirror the Python math, so anyone can verify the weights and consensus independently.
@@ -90,6 +94,21 @@ make test               # 154 Python tests
 make test-solidity      # 55 Foundry tests
 make test-integration   # end-to-end pipeline tests
 ```
+
+## Live Demo & Submission Assets
+
+| What                  | URL                                                           |
+|-----------------------|---------------------------------------------------------------|
+| GitHub Pages          | https://solmonger.github.io/swarm-oracle/                      |
+| Interactive demo      | [demo.html](demo.html) (open locally or via Pages)             |
+| Benchmark report      | [benchmark.html](benchmark.html)                               |
+| 90-second video       | https://youtu.be/Dy1h0Hcr4HQ                                   |
+| DevPost project page  | https://devpost.com/software/swarm-oracle                      |
+| Judges' quickstart    | [JUDGES.md](JUDGES.md)                                         |
+
+The landing page (`index.html`) is hand-rolled, single-file, zero-CDN. Every
+visual token mirrors `demo.html`, so the site looks like the protocol from any
+entry point. Pushes to `main` auto-publish via `.github/workflows/pages.yml`.
 
 ## Architecture
 
@@ -273,6 +292,80 @@ All values use WAD (1e18 = 1.0):
 - 13/29 model wins vs. market closing price
 - Calibration weighting demonstrably dampens low-confidence novice agents while amplifying oracles
 - Self-improving: every resolution becomes training data for future DPO fine-tuning
+
+## Security Model
+
+The protocol's economic security against Sybil attacks is documented and
+quantified in [`docs/security-model.md`](docs/security-model.md). Headline
+findings, derived from the canonical demo scenario:
+
+- **Cheap Sybils are expensive.** Flipping a YES decision requires at
+  least **272 base-weight Sybils** — the closed-form mean-crossing bound
+  is 78, and the variance gate raises the true cost by `3.5×`.
+- **High-weight Sybils require real calibration.** A constant-vote
+  attacker's expected Brier is bounded below by `r·(1−r)`, capping
+  per-Sybil weight at `~3.98` for balanced base rates — well below the
+  oracle-tier weight of `~9.99`.
+- **Disputes are intentionally cheap (1 Sybil), but disputes don't
+  flip resolutions** — they trigger fallback. Sustained dispute spam is
+  publicly observable and rate-limited on-chain.
+
+Reproduce locally:
+
+```bash
+make sybil-demo                            # report for YES target
+make sybil-demo-all                        # all three targets
+python -m pytest tests/test_sybil.py -v   # 83 tests
+```
+
+The math is mirrored on-chain in `CalibrationRegistry.sol`; see
+`tests/test_on_chain.py` for the Python↔Solidity parity tests.
+
+## Threat Model (multi-vector adversarial analysis)
+
+Beyond single-attacker Sybil, the protocol is analysed against
+**collusion**, **adaptive attackers** (who see honest votes first), and
+**economic bribery** in [`docs/threat-model.md`](docs/threat-model.md).
+Numbers pinned by `tests/test_adversarial.py` (59 tests) and
+`tests/test_adversarial_demo.py` (31 tests):
+
+- **Symmetric Collusion Lemma.** *k* colluders with identical votes and
+  summed weight *W* are operationally equivalent to one Sybil at weight
+  *W* — splitting attack capital across more Sybil identities provides
+  zero mean-stage benefit.
+- **Adaptive attackers don't help.** A worst-case attacker who reads
+  every honest vote before voting needs the same weight as one who
+  guesses blindly — the protocol is information-resistant in that sense.
+- **Bribery is the cheapest attack in the 3-agent regime.** $500 to
+  flip 2 honest agents beats $1,360 to register 272 Sybils. The
+  crossover (where Sybil becomes cheaper) sits around 10+
+  high-weight agents at $2k/agent bribery cost — the production
+  operating regime.
+
+Reproduce:
+
+```bash
+make adversarial-demo                      # collusion + adaptive + bribery
+make adversarial-compare                   # Sybil vs bribery USD comparison
+python -m pytest tests/test_adversarial.py tests/test_adversarial_demo.py -v
+```
+
+## Competitive Positioning
+
+[`docs/competitive-comparison.md`](docs/competitive-comparison.md)
+positions Swarm Oracle against **UMA**, **Augur v2**, **Reality.eth +
+Kleros**, **Chainlink Price Feeds**, and **Pyth Network**. Headline
+takeaway: Swarm Oracle is the only oracle in that set that resolves
+free-form questions in seconds (vs hours for UMA / Reality.eth) and the
+only one that is **self-improving** via the DPO loop. Chainlink and Pyth
+are complements (price-numeric), not competitors.
+
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the dev environment, test
+expectations, and PR flow. Security issues: please follow the
+coordinated-disclosure process in [`SECURITY.md`](SECURITY.md) rather than
+filing a public issue.
 
 ## Hackathon
 
