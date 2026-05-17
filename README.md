@@ -2,6 +2,8 @@
 
 **Calibration-weighted multi-agent prediction oracle.**
 
+[![CI](https://github.com/solmonger/swarm-oracle/actions/workflows/ci.yml/badge.svg)](https://github.com/solmonger/swarm-oracle/actions/workflows/ci.yml)
+
 > **Live demo:** [solmonger.github.io/swarm-oracle](https://solmonger.github.io/swarm-oracle/) &middot;
 > **Video:** [90-second walkthrough](https://youtu.be/Dy1h0Hcr4HQ) &middot;
 > **Hackathon judges:** start with [`JUDGES.md`](JUDGES.md)
@@ -90,7 +92,7 @@ docker run -p 8000:8000 swarm-oracle
 ### Testing
 
 ```bash
-make test               # 154 Python tests
+make test               # 742 Python tests (all passing)
 make test-solidity      # 55 Foundry tests
 make test-integration   # end-to-end pipeline tests
 ```
@@ -192,7 +194,7 @@ swarm-oracle/
 │   │   └── AgentIdentity.t.sol       # Foundry tests — identity
 │   └── script/
 │       └── Deploy.s.sol              # Full-suite deployment (all 4 contracts)
-├── tests/                       # Python test suite (115+ tests)
+├── tests/                       # Python test suite (742 tests)
 ├── docs/
 │   └── DEPLOYMENT.md            # Base Sepolia deployment guide
 └── examples/
@@ -255,7 +257,7 @@ Interactive docs at `http://localhost:8000/docs` (Swagger UI) or `/redoc`.
 ## Running Tests
 
 ```bash
-# Python tests (115+ tests, ~1.5s)
+# Python tests (742 tests, ~33s)
 python -m pytest tests/ -v
 
 # Solidity tests (requires Foundry)
@@ -350,6 +352,29 @@ make adversarial-compare                   # Sybil vs bribery USD comparison
 python -m pytest tests/test_adversarial.py tests/test_adversarial_demo.py -v
 ```
 
+## Economic Security Model
+
+[`docs/ECONOMIC_MODEL.md`](docs/ECONOMIC_MODEL.md) introduces the security
+parameter **ρ = min(C_sybil, C_bribery) / M** and the production invariant
+**N × B > M** (validator count × per-agent bribery cost must exceed market
+size). Verified by 50 tests against actual protocol constants.
+
+Phase scaling (demo pool = oracle 9.90 weight + reliable 5.52 + novice 1.00):
+
+| Pool size | Market size secure |
+|-----------|-------------------|
+| 3 agents  | < $1,500          |
+| 10 agents | < $10,000         |
+| 50 agents | < $100,000        |
+| 200 agents| < $1,000,000      |
+
+Reproduce:
+
+```bash
+make economic-model-mvp   # minimum viable pool by market tier
+python -m pytest tests/test_economic_model.py -v  # 50 tests
+```
+
 ## Competitive Positioning
 
 [`docs/competitive-comparison.md`](docs/competitive-comparison.md)
@@ -359,6 +384,43 @@ takeaway: Swarm Oracle is the only oracle in that set that resolves
 free-form questions in seconds (vs hours for UMA / Reality.eth) and the
 only one that is **self-improving** via the DPO loop. Chainlink and Pyth
 are complements (price-numeric), not competitors.
+
+## Interactive Notebook
+
+[`notebooks/swarm_oracle_demo.ipynb`](notebooks/swarm_oracle_demo.ipynb) —
+7-part interactive Jupyter walkthrough. Browser-renderable on GitHub. No LLM
+or server required.
+
+| Part | What it demonstrates |
+|------|----------------------|
+| 1. Calibration Weights | `compute_weight` with bar charts |
+| 2. Consensus Formation | YES / DISPUTE / NO scenarios |
+| 3. Benchmark | 50-case results from benchmark.json |
+| 4. Adversarial Analysis | Sybil + adaptive + bribery crossover |
+| 5. Economic Security | ρ table + minimum viable pool |
+| 6. On-Chain Architecture | contract preview + deploy commands |
+| 7. Full Test Suite | `subprocess.run(pytest)` in-notebook |
+
+```bash
+jupyter notebook notebooks/swarm_oracle_demo.ipynb
+```
+
+## Testing
+
+| Suite | Count | Command |
+|-------|-------|---------|
+| Full Python suite | 742 | `make test` |
+| Adversarial (collusion / adaptive / bribery) | 90 | `make test-adversarial` |
+| Sybil resistance | 83 | `python -m pytest tests/test_sybil.py` |
+| Economic security model | 50 | `python -m pytest tests/test_economic_model.py` |
+| Benchmark (deterministic 50-case) | 32 | `make test-benchmark` |
+| Jupyter notebook structure | 34 | `python -m pytest tests/test_notebook.py` |
+| Submission readiness gate | 55 | `python -m pytest tests/test_submission_readiness.py` |
+| Python ↔ Solidity parity | 14 | `make test-parity` |
+| Foundry (Solidity) | 55 | `make test-solidity` |
+| **Total** | **797** | `make test && make test-solidity` |
+
+CI verifies all 797 tests on every push (6-job pipeline, Python 3.11 + 3.12).
 
 ## Contributing
 

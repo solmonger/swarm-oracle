@@ -12,7 +12,8 @@ concurrency:
 
 jobs:
   # ──────────────────────────────────────────
-  # Python tests — full 613-test suite
+  # Python tests — full 742-test suite
+  # (includes 29 FastAPI endpoint tests; CI installs fastapi+httpx)
   # ──────────────────────────────────────────
   python-tests:
     name: Python ${{ matrix.python-version }} tests
@@ -86,7 +87,11 @@ jobs:
           import json, sys
           with open('benchmark.json') as f:
               data = json.load(f)
-          methods = data['methods']
+          # benchmark.py writes 'metrics'; gracefully fall back to 'methods'
+          methods = data.get('metrics') or data.get('methods') or {}
+          if not methods:
+              print('FAIL: benchmark.json has no metrics/methods key')
+              sys.exit(1)
           swarm_brier = methods['swarm']['brier']
           for name, m in methods.items():
               if name == 'swarm':
@@ -285,4 +290,4 @@ jobs:
             echo "One or more CI jobs failed or were cancelled."
             exit 1
           fi
-          echo "All CI jobs passed. 668 tests (613 Python + 55 Foundry)."
+          echo "All CI jobs passed. 797 tests (742 Python + 55 Foundry)."

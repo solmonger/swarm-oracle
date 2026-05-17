@@ -324,3 +324,105 @@ class TestReadmeAdversarialReferences:
         # Headline test counts: 59 + 31 = 90 new tests
         assert "59 tests" in content
         assert "31 tests" in content
+
+
+# ---------------------------------------------------------------------------
+# docs/ECONOMIC_MODEL.md
+# ---------------------------------------------------------------------------
+
+
+class TestEconomicModelDoc:
+    def test_file_exists(self):
+        assert (REPO_ROOT / "docs" / "ECONOMIC_MODEL.md").is_file()
+
+    @pytest.mark.parametrize(
+        "section",
+        [
+            "## 1. Protocol parameters",
+            "## 2. Weight formula",
+            "## 3. Attack model",
+            "## 4. Sybil attack cost",
+            "## 5. Bribery attack cost",
+            "## 6. Security parameter",
+            "## 7. Crossover analysis",
+            "## 8. Scaling tables",
+            "## 9. Production recommendations",
+            "## 10. Limitations and future work",
+            "## 11. Reproducing the numbers",
+        ],
+    )
+    def test_section_present(self, section):
+        content = _read("docs/ECONOMIC_MODEL.md")
+        assert section in content, f"missing ECONOMIC_MODEL.md section: {section}"
+
+    def test_references_economic_model_script(self):
+        content = _read("docs/ECONOMIC_MODEL.md")
+        assert "scripts/economic_model.py" in content
+
+    def test_references_test_economic_model(self):
+        content = _read("docs/ECONOMIC_MODEL.md")
+        assert "tests/test_economic_model.py" in content
+
+    def test_production_formula_present(self):
+        content = _read("docs/ECONOMIC_MODEL.md")
+        # The core N × B > M security invariant must be documented
+        assert "N × B > M" in content
+
+
+# ---------------------------------------------------------------------------
+# Makefile — economic security model targets
+# ---------------------------------------------------------------------------
+
+
+class TestEconomicModelMakefileTargets:
+    @pytest.mark.parametrize(
+        "target",
+        [
+            "test-economic:",
+            "economic-model:",
+            "economic-model-scaling:",
+            "economic-model-mvp:",
+        ],
+    )
+    def test_target_present(self, target):
+        content = _read("Makefile")
+        assert target in content, f"missing Makefile target: {target}"
+
+    def test_phony_includes_economic_targets(self):
+        content = _read("Makefile")
+        phony_line = [
+            line for line in content.splitlines() if line.startswith(".PHONY:")
+        ]
+        assert phony_line, "Makefile has no .PHONY declaration"
+        joined = " ".join(phony_line)
+        for t in (
+            "test-economic",
+            "economic-model",
+            "economic-model-scaling",
+            "economic-model-mvp",
+            "benchmark",
+            "test-benchmark",
+            "test-parity",
+        ):
+            assert t in joined, f".PHONY missing {t}"
+
+
+# ---------------------------------------------------------------------------
+# README references the economic security model
+# ---------------------------------------------------------------------------
+
+
+class TestReadmeEconomicModelReference:
+    def test_economic_model_link(self):
+        content = _read("README.md")
+        assert "ECONOMIC_MODEL.md" in content
+
+    def test_production_formula_mentioned(self):
+        content = _read("README.md")
+        # Core N×B>M formula must appear in README
+        assert "N × B > M" in content
+
+    def test_economic_model_test_count(self):
+        content = _read("README.md")
+        # README should mention the 50-test economic model validation
+        assert "50 tests" in content

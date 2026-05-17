@@ -1,6 +1,12 @@
 {
-  "timestamp": "2026-05-13 06:13:28",
-  "n_cases": 12,
+  "timestamp": "2026-05-17 22:45:27 UTC",
+  "n_cases": 50,
+  "seed": 42,
+  "agent_weights": {
+    "agent-oracle": 9.901,
+    "agent-reliable": 5.5249,
+    "agent-novice": 0.996
+  },
   "methods_in_order": [
     "swarm",
     "majority",
@@ -11,498 +17,754 @@
   ],
   "metrics": {
     "swarm": {
-      "accuracy": 0.9166666666666666,
-      "brier": 0.08585509609918741,
-      "log_loss": 0.29504422866592145,
-      "n_correct": 11,
-      "n_total": 12,
-      "n_disputed": 7
-    },
-    "majority": {
-      "accuracy": 0.8333333333333334,
-      "brier": 0.16666666666666666,
-      "log_loss": 3.453877645038055,
-      "n_correct": 10,
-      "n_total": 12,
-      "n_disputed": 0
-    },
-    "average": {
-      "accuracy": 0.9166666666666666,
-      "brier": 0.11836944444444443,
-      "log_loss": 0.3853755543390771,
-      "n_correct": 11,
-      "n_total": 12,
-      "n_disputed": 0
+      "accuracy": 1.0,
+      "brier": 0.07237286790504954,
+      "log_loss": 0.26215447875309256,
+      "n_correct": 50,
+      "n_total": 50,
+      "n_disputed": 18
     },
     "agent-oracle": {
-      "accuracy": 0.8333333333333334,
-      "brier": 0.08700833333333334,
-      "log_loss": 0.28026217417860727,
-      "n_correct": 10,
-      "n_total": 12,
+      "accuracy": 0.84,
+      "brier": 0.10293110087313176,
+      "log_loss": 0.2923940550434312,
+      "n_correct": 42,
+      "n_total": 50,
       "n_disputed": 0
     },
     "agent-reliable": {
-      "accuracy": 0.8333333333333334,
-      "brier": 0.11120833333333331,
-      "log_loss": 0.34474823245699815,
-      "n_correct": 10,
-      "n_total": 12,
+      "accuracy": 0.8,
+      "brier": 0.13324665958478019,
+      "log_loss": 0.40780207967858034,
+      "n_correct": 40,
+      "n_total": 50,
       "n_disputed": 0
     },
     "agent-novice": {
-      "accuracy": 0.6666666666666666,
-      "brier": 0.23395833333333338,
-      "log_loss": 0.6612492628381709,
-      "n_correct": 8,
-      "n_total": 12,
+      "accuracy": 0.68,
+      "brier": 0.20087236576358258,
+      "log_loss": 0.579979048238054,
+      "n_correct": 34,
+      "n_total": 50,
+      "n_disputed": 0
+    },
+    "average": {
+      "accuracy": 0.98,
+      "brier": 0.09352283526998961,
+      "log_loss": 0.3404897382899738,
+      "n_correct": 49,
+      "n_total": 50,
+      "n_disputed": 0
+    },
+    "majority": {
+      "accuracy": 0.92,
+      "brier": 0.0785,
+      "log_loss": 0.30128701392882357,
+      "n_correct": 46,
+      "n_total": 50,
       "n_disputed": 0
     }
   },
   "cases": [
     {
-      "question": "Did BTC close above $100K on May 5, 2026?",
-      "category": "crypto",
-      "true_outcome": 0,
-      "results": {
-        "swarm": {
-          "probability": 0.06523501288946248,
-          "decision": "NO",
-          "correct": true
-        },
-        "majority": {
-          "probability": 0.0,
-          "decision": "NO",
-          "correct": true
-        },
-        "average": {
-          "probability": 0.19333333333333333,
-          "decision": "NO",
-          "correct": true
-        },
-        "agent-oracle": {
-          "probability": 0.03,
-          "decision": "NO",
-          "correct": true
-        },
-        "agent-reliable": {
-          "probability": 0.05,
-          "decision": "NO",
-          "correct": true
-        },
-        "agent-novice": {
-          "probability": 0.5,
-          "decision": "YES",
-          "correct": false
-        }
-      }
+      "question": "Will Bitcoin exceed $200,000 in 2024?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.0688,
+        "agent-reliable": 0.0818,
+        "agent-novice": 0.2806
+      },
+      "swarm_probability": 0.086,
+      "swarm_decision": "NO",
+      "average_probability": 0.1438,
+      "average_decision": "NO",
+      "majority_decision": "NO"
     },
     {
-      "question": "Will ETH be above $5,000 on June 1, 2026?",
-      "category": "crypto",
-      "true_outcome": 0,
-      "results": {
-        "swarm": {
-          "probability": 0.34504493893679355,
-          "decision": "DISPUTE",
-          "correct": true
-        },
-        "majority": {
-          "probability": 1.0,
-          "decision": "YES",
-          "correct": false
-        },
-        "average": {
-          "probability": 0.4666666666666666,
-          "decision": "NO",
-          "correct": true
-        },
-        "agent-oracle": {
-          "probability": 0.2,
-          "decision": "NO",
-          "correct": true
-        },
-        "agent-reliable": {
-          "probability": 0.55,
-          "decision": "YES",
-          "correct": false
-        },
-        "agent-novice": {
-          "probability": 0.65,
-          "decision": "YES",
-          "correct": false
-        }
-      }
+      "question": "Did a major AI lab release an open-source frontier model in 2024?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.8996,
+        "agent-reliable": 0.8945,
+        "agent-novice": 0.6006
+      },
+      "swarm_probability": 0.8797,
+      "swarm_decision": "YES",
+      "average_probability": 0.7982,
+      "average_decision": "YES",
+      "majority_decision": "YES"
     },
     {
-      "question": "Did BTC reach an all-time high in 2024?",
-      "category": "crypto",
-      "true_outcome": 1,
-      "results": {
-        "swarm": {
-          "probability": 0.9462318643437986,
-          "decision": "YES",
-          "correct": true
-        },
-        "majority": {
-          "probability": 1.0,
-          "decision": "YES",
-          "correct": true
-        },
-        "average": {
-          "probability": 0.9,
-          "decision": "YES",
-          "correct": true
-        },
-        "agent-oracle": {
-          "probability": 0.97,
-          "decision": "YES",
-          "correct": true
-        },
-        "agent-reliable": {
-          "probability": 0.93,
-          "decision": "YES",
-          "correct": true
-        },
-        "agent-novice": {
-          "probability": 0.8,
-          "decision": "YES",
-          "correct": true
-        }
-      }
+      "question": "Did Solana's price recover above $100 during 2024?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.9415,
+        "agent-reliable": 0.8829,
+        "agent-novice": 0.4747
+      },
+      "swarm_probability": 0.8935,
+      "swarm_decision": "YES",
+      "average_probability": 0.7664,
+      "average_decision": "YES",
+      "majority_decision": "YES"
     },
     {
-      "question": "Will the home team win the Saturday derby?",
-      "category": "sports",
-      "true_outcome": 1,
-      "results": {
-        "swarm": {
-          "probability": 0.6861388677843062,
-          "decision": "DISPUTE",
-          "correct": true
-        },
-        "majority": {
-          "probability": 1.0,
-          "decision": "YES",
-          "correct": true
-        },
-        "average": {
-          "probability": 0.64,
-          "decision": "YES",
-          "correct": true
-        },
-        "agent-oracle": {
-          "probability": 0.72,
-          "decision": "YES",
-          "correct": true
-        },
-        "agent-reliable": {
-          "probability": 0.65,
-          "decision": "YES",
-          "correct": true
-        },
-        "agent-novice": {
-          "probability": 0.55,
-          "decision": "YES",
-          "correct": true
-        }
-      }
+      "question": "Did Tesla deliver more than 1.8M vehicles globally in 2023?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.9617,
+        "agent-reliable": 0.9266,
+        "agent-novice": 0.486
+      },
+      "swarm_probability": 0.921,
+      "swarm_decision": "YES",
+      "average_probability": 0.7914,
+      "average_decision": "YES",
+      "majority_decision": "YES"
     },
     {
-      "question": "Will the #1 seed win their first-round playoff game?",
-      "category": "sports",
-      "true_outcome": 0,
-      "results": {
-        "swarm": {
-          "probability": 0.5189270061610635,
-          "decision": "DISPUTE",
-          "correct": false
-        },
-        "majority": {
-          "probability": 1.0,
-          "decision": "YES",
-          "correct": false
-        },
-        "average": {
-          "probability": 0.6266666666666666,
-          "decision": "YES",
-          "correct": false
-        },
-        "agent-oracle": {
-          "probability": 0.35,
-          "decision": "NO",
-          "correct": true
-        },
-        "agent-reliable": {
-          "probability": 0.78,
-          "decision": "YES",
-          "correct": false
-        },
-        "agent-novice": {
-          "probability": 0.75,
-          "decision": "YES",
-          "correct": false
-        }
-      }
+      "question": "Did NVIDIA's stock price exceed $800 in 2024?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.9377,
+        "agent-reliable": 0.8304,
+        "agent-novice": 0.378
+      },
+      "swarm_probability": 0.8676,
+      "swarm_decision": "YES",
+      "average_probability": 0.7153,
+      "average_decision": "YES",
+      "majority_decision": "YES"
     },
     {
-      "question": "Will France finish in the top 4 of EURO 2024?",
-      "category": "sports",
-      "true_outcome": 1,
-      "results": {
-        "swarm": {
-          "probability": 0.7926330003417282,
-          "decision": "DISPUTE",
-          "correct": true
-        },
-        "majority": {
-          "probability": 1.0,
-          "decision": "YES",
-          "correct": true
-        },
-        "average": {
-          "probability": 0.7433333333333333,
-          "decision": "YES",
-          "correct": true
-        },
-        "agent-oracle": {
-          "probability": 0.78,
-          "decision": "YES",
-          "correct": true
-        },
-        "agent-reliable": {
-          "probability": 0.85,
-          "decision": "YES",
-          "correct": true
-        },
-        "agent-novice": {
-          "probability": 0.6,
-          "decision": "YES",
-          "correct": true
-        }
-      }
+      "question": "Did OpenAI go public (IPO) in 2023?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.02,
+        "agent-reliable": 0.7606,
+        "agent-novice": 0.3232
+      },
+      "swarm_probability": 0.2875,
+      "swarm_decision": "DISPUTE",
+      "average_probability": 0.3679,
+      "average_decision": "NO",
+      "majority_decision": "NO"
     },
     {
-      "question": "Will global average temperature anomaly drop below pre-industrial baseline by 2030?",
-      "category": "general",
-      "true_outcome": 0,
-      "results": {
-        "swarm": {
-          "probability": 0.053140682594083125,
-          "decision": "NO",
-          "correct": true
-        },
-        "majority": {
-          "probability": 0.0,
-          "decision": "NO",
-          "correct": true
-        },
-        "average": {
-          "probability": 0.15666666666666668,
-          "decision": "NO",
-          "correct": true
-        },
-        "agent-oracle": {
-          "probability": 0.02,
-          "decision": "NO",
-          "correct": true
-        },
-        "agent-reliable": {
-          "probability": 0.05,
-          "decision": "NO",
-          "correct": true
-        },
-        "agent-novice": {
-          "probability": 0.4,
-          "decision": "NO",
-          "correct": true
-        }
-      }
+      "question": "Did the US enter a recession in 2023?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.0377,
+        "agent-reliable": 0.8116,
+        "agent-novice": 0.4134
+      },
+      "swarm_probability": 0.3208,
+      "swarm_decision": "DISPUTE",
+      "average_probability": 0.4209,
+      "average_decision": "NO",
+      "majority_decision": "NO"
     },
     {
-      "question": "Was Paris the host of the 2024 Summer Olympics?",
-      "category": "general",
-      "true_outcome": 1,
-      "results": {
-        "swarm": {
-          "probability": 0.9680514185044241,
-          "decision": "YES",
-          "correct": true
-        },
-        "majority": {
-          "probability": 1.0,
-          "decision": "YES",
-          "correct": true
-        },
-        "average": {
-          "probability": 0.93,
-          "decision": "YES",
-          "correct": true
-        },
-        "agent-oracle": {
-          "probability": 0.99,
-          "decision": "YES",
-          "correct": true
-        },
-        "agent-reliable": {
-          "probability": 0.95,
-          "decision": "YES",
-          "correct": true
-        },
-        "agent-novice": {
-          "probability": 0.85,
-          "decision": "YES",
-          "correct": true
-        }
-      }
+      "question": "Did 2023 set a new global average temperature record?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.98,
+        "agent-reliable": 0.1817,
+        "agent-novice": 0.6001
+      },
+      "swarm_probability": 0.6884,
+      "swarm_decision": "DISPUTE",
+      "average_probability": 0.5873,
+      "average_decision": "YES",
+      "majority_decision": "YES"
     },
     {
-      "question": "Will a major LLM lab release a model exceeding GPT-4o on MMLU by end of 2026?",
-      "category": "general",
-      "true_outcome": 1,
-      "results": {
-        "swarm": {
-          "probability": 0.691558911644974,
-          "decision": "DISPUTE",
-          "correct": true
-        },
-        "majority": {
-          "probability": 1.0,
-          "decision": "YES",
-          "correct": true
-        },
-        "average": {
-          "probability": 0.5233333333333333,
-          "decision": "YES",
-          "correct": true
-        },
-        "agent-oracle": {
-          "probability": 0.82,
-          "decision": "YES",
-          "correct": true
-        },
-        "agent-reliable": {
-          "probability": 0.55,
-          "decision": "YES",
-          "correct": true
-        },
-        "agent-novice": {
-          "probability": 0.2,
-          "decision": "NO",
-          "correct": false
-        }
-      }
+      "question": "Did the Fed raise rates above 6% in 2023?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.0368,
+        "agent-reliable": 0.8689,
+        "agent-novice": 0.5296
+      },
+      "swarm_probability": 0.3467,
+      "swarm_decision": "DISPUTE",
+      "average_probability": 0.4784,
+      "average_decision": "NO",
+      "majority_decision": "YES"
     },
     {
-      "question": "Will the world adopt a single global currency by 2027?",
-      "category": "general",
-      "true_outcome": 0,
-      "results": {
-        "swarm": {
-          "probability": 0.02521991712258094,
-          "decision": "NO",
-          "correct": true
-        },
-        "majority": {
-          "probability": 0.0,
-          "decision": "NO",
-          "correct": true
-        },
-        "average": {
-          "probability": 0.06333333333333334,
-          "decision": "NO",
-          "correct": true
-        },
-        "agent-oracle": {
-          "probability": 0.01,
-          "decision": "NO",
-          "correct": true
-        },
-        "agent-reliable": {
-          "probability": 0.03,
-          "decision": "NO",
-          "correct": true
-        },
-        "agent-novice": {
-          "probability": 0.15,
-          "decision": "NO",
-          "correct": true
-        }
-      }
+      "question": "Did ARM Holdings IPO in 2023?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.98,
+        "agent-reliable": 0.883,
+        "agent-novice": 0.5911
+      },
+      "swarm_probability": 0.9238,
+      "swarm_decision": "YES",
+      "average_probability": 0.818,
+      "average_decision": "YES",
+      "majority_decision": "YES"
     },
     {
-      "question": "Will the underdog cover the +7 spread in tonight's game?",
-      "category": "sports",
-      "true_outcome": 1,
-      "results": {
-        "swarm": {
-          "probability": 0.5369423938900297,
-          "decision": "DISPUTE",
-          "correct": true
-        },
-        "majority": {
-          "probability": 1.0,
-          "decision": "YES",
-          "correct": true
-        },
-        "average": {
-          "probability": 0.5766666666666668,
-          "decision": "YES",
-          "correct": true
-        },
-        "agent-oracle": {
-          "probability": 0.4,
-          "decision": "NO",
-          "correct": false
-        },
-        "agent-reliable": {
-          "probability": 0.78,
-          "decision": "YES",
-          "correct": true
-        },
-        "agent-novice": {
-          "probability": 0.55,
-          "decision": "YES",
-          "correct": true
-        }
-      }
+      "question": "Did the Euro reach parity with the British pound in 2023?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.0304,
+        "agent-reliable": 0.0985,
+        "agent-novice": 0.1074
+      },
+      "swarm_probability": 0.058,
+      "swarm_decision": "NO",
+      "average_probability": 0.0788,
+      "average_decision": "NO",
+      "majority_decision": "NO"
     },
     {
-      "question": "Did SOL close above $300 yesterday?",
-      "category": "crypto",
-      "true_outcome": 0,
-      "results": {
-        "swarm": {
-          "probability": 0.4233491037095773,
-          "decision": "DISPUTE",
-          "correct": true
-        },
-        "majority": {
-          "probability": 0.0,
-          "decision": "NO",
-          "correct": true
-        },
-        "average": {
-          "probability": 0.35666666666666663,
-          "decision": "NO",
-          "correct": true
-        },
-        "agent-oracle": {
-          "probability": 0.6,
-          "decision": "YES",
-          "correct": false
-        },
-        "agent-reliable": {
-          "probability": 0.12,
-          "decision": "NO",
-          "correct": true
-        },
-        "agent-novice": {
-          "probability": 0.35,
-          "decision": "NO",
-          "correct": true
-        }
-      }
+      "question": "Did OpenAI release a version of ChatGPT with voice capability?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.9255,
+        "agent-reliable": 0.8462,
+        "agent-novice": 0.3469
+      },
+      "swarm_probability": 0.8637,
+      "swarm_decision": "YES",
+      "average_probability": 0.7062,
+      "average_decision": "YES",
+      "majority_decision": "YES"
+    },
+    {
+      "question": "Did Meta's quarterly revenue grow YoY in Q1 2024?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.9308,
+        "agent-reliable": 0.8412,
+        "agent-novice": 0.8636
+      },
+      "swarm_probability": 0.8965,
+      "swarm_decision": "YES",
+      "average_probability": 0.8785,
+      "average_decision": "YES",
+      "majority_decision": "YES"
+    },
+    {
+      "question": "Did US CPI inflation fall below 4% YoY in 2024?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.9225,
+        "agent-reliable": 0.9078,
+        "agent-novice": 0.7985
+      },
+      "swarm_probability": 0.91,
+      "swarm_decision": "YES",
+      "average_probability": 0.8763,
+      "average_decision": "YES",
+      "majority_decision": "YES"
+    },
+    {
+      "question": "Did the US pass comprehensive federal AI regulation in 2023?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.02,
+        "agent-reliable": 0.0375,
+        "agent-novice": 0.2474
+      },
+      "swarm_probability": 0.0397,
+      "swarm_decision": "NO",
+      "average_probability": 0.1016,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did SpaceX Starship successfully reach orbit on its first test?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.0272,
+        "agent-reliable": 0.0855,
+        "agent-novice": 0.5266
+      },
+      "swarm_probability": 0.0771,
+      "swarm_decision": "NO",
+      "average_probability": 0.2131,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did the UK hold a general election in 2024?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.9526,
+        "agent-reliable": 0.8227,
+        "agent-novice": 0.56
+      },
+      "swarm_probability": 0.8851,
+      "swarm_decision": "YES",
+      "average_probability": 0.7784,
+      "average_decision": "YES",
+      "majority_decision": "YES"
+    },
+    {
+      "question": "Did Tesla's Full Self-Driving subscription exceed 500K users?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.9358,
+        "agent-reliable": 0.8657,
+        "agent-novice": 0.315
+      },
+      "swarm_probability": 0.8746,
+      "swarm_decision": "YES",
+      "average_probability": 0.7055,
+      "average_decision": "YES",
+      "majority_decision": "YES"
+    },
+    {
+      "question": "Did China's economy contract in 2023?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.02,
+        "agent-reliable": 0.7283,
+        "agent-novice": 0.4744
+      },
+      "swarm_probability": 0.2858,
+      "swarm_decision": "DISPUTE",
+      "average_probability": 0.4076,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did the S&P 500 close above 5000 in Q1 2024?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.9763,
+        "agent-reliable": 0.7983,
+        "agent-novice": 0.98
+      },
+      "swarm_probability": 0.9166,
+      "swarm_decision": "YES",
+      "average_probability": 0.9182,
+      "average_decision": "YES",
+      "majority_decision": "YES"
+    },
+    {
+      "question": "Did quantum computers break RSA-2048 encryption by 2024?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.0249,
+        "agent-reliable": 0.0872,
+        "agent-novice": 0.3378
+      },
+      "swarm_probability": 0.0648,
+      "swarm_decision": "NO",
+      "average_probability": 0.15,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did clean energy surpass coal in US electricity generation 2023?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.9286,
+        "agent-reliable": 0.8355,
+        "agent-novice": 0.4206
+      },
+      "swarm_probability": 0.8665,
+      "swarm_decision": "YES",
+      "average_probability": 0.7282,
+      "average_decision": "YES",
+      "majority_decision": "YES"
+    },
+    {
+      "question": "Did US inflation return to the 2% target by end of 2023?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.06,
+        "agent-reliable": 0.1059,
+        "agent-novice": 0.6667
+      },
+      "swarm_probability": 0.1122,
+      "swarm_decision": "NO",
+      "average_probability": 0.2775,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did the UK re-join any EU single-market arrangement in 2023?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.0919,
+        "agent-reliable": 0.1096,
+        "agent-novice": 0.1641
+      },
+      "swarm_probability": 0.1022,
+      "swarm_decision": "NO",
+      "average_probability": 0.1219,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did a fully autonomous vehicle (L5) deploy in a major US city?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.02,
+        "agent-reliable": 0.112,
+        "agent-novice": 0.3
+      },
+      "swarm_probability": 0.0679,
+      "swarm_decision": "NO",
+      "average_probability": 0.144,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did Ethereum flip Bitcoin by market cap in 2024?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.02,
+        "agent-reliable": 0.0371,
+        "agent-novice": 0.6826
+      },
+      "swarm_probability": 0.0659,
+      "swarm_decision": "NO",
+      "average_probability": 0.2466,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did Twitter/X exceed its 2021 peak valuation by end of 2023?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.02,
+        "agent-reliable": 0.1066,
+        "agent-novice": 0.5738
+      },
+      "swarm_probability": 0.0827,
+      "swarm_decision": "NO",
+      "average_probability": 0.2335,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did the 2024 Paris Olympics take place in the summer?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.9249,
+        "agent-reliable": 0.98,
+        "agent-novice": 0.6784
+      },
+      "swarm_probability": 0.9285,
+      "swarm_decision": "YES",
+      "average_probability": 0.8611,
+      "average_decision": "YES",
+      "majority_decision": "YES"
+    },
+    {
+      "question": "Did the US national debt exceed $34 trillion in 2024?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.257,
+        "agent-reliable": 0.8166,
+        "agent-novice": 0.6043
+      },
+      "swarm_probability": 0.4663,
+      "swarm_decision": "DISPUTE",
+      "average_probability": 0.5593,
+      "average_decision": "YES",
+      "majority_decision": "YES"
+    },
+    {
+      "question": "Did an AGI system pass the Turing test under rigorous conditions?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.0696,
+        "agent-reliable": 0.1291,
+        "agent-novice": 0.4891
+      },
+      "swarm_probability": 0.1151,
+      "swarm_decision": "NO",
+      "average_probability": 0.2293,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did the price of gold fall below $1,500 in 2023?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.02,
+        "agent-reliable": 0.8551,
+        "agent-novice": 0.4128
+      },
+      "swarm_probability": 0.3248,
+      "swarm_decision": "DISPUTE",
+      "average_probability": 0.4293,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did TikTok get fully banned in the US in 2023?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.0229,
+        "agent-reliable": 0.6511,
+        "agent-novice": 0.4105
+      },
+      "swarm_probability": 0.2578,
+      "swarm_decision": "DISPUTE",
+      "average_probability": 0.3615,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did oil prices exceed $150/barrel during 2023?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.02,
+        "agent-reliable": 0.6963,
+        "agent-novice": 0.4894
+      },
+      "swarm_probability": 0.276,
+      "swarm_decision": "DISPUTE",
+      "average_probability": 0.4019,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did Microsoft Bing surpass Google in search market share in 2023?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.037,
+        "agent-reliable": 0.0734,
+        "agent-novice": 0.3321
+      },
+      "swarm_probability": 0.0672,
+      "swarm_decision": "NO",
+      "average_probability": 0.1475,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did ChatGPT reach 100M users within 2 months of its launch?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.1716,
+        "agent-reliable": 0.9272,
+        "agent-novice": 0.4122
+      },
+      "swarm_probability": 0.4404,
+      "swarm_decision": "DISPUTE",
+      "average_probability": 0.5036,
+      "average_decision": "YES",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did Elon Musk step down as Twitter/X CEO in 2023?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.7995,
+        "agent-reliable": 0.0822,
+        "agent-novice": 0.3217
+      },
+      "swarm_probability": 0.5292,
+      "swarm_decision": "DISPUTE",
+      "average_probability": 0.4011,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did a major US bank fail in Q1 2024?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.0319,
+        "agent-reliable": 0.1315,
+        "agent-novice": 0.02
+      },
+      "swarm_probability": 0.0647,
+      "swarm_decision": "NO",
+      "average_probability": 0.0611,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did the Fed cut rates at least once in 2024?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.2166,
+        "agent-reliable": 0.869,
+        "agent-novice": 0.6146
+      },
+      "swarm_probability": 0.4602,
+      "swarm_decision": "DISPUTE",
+      "average_probability": 0.5667,
+      "average_decision": "YES",
+      "majority_decision": "YES"
+    },
+    {
+      "question": "Did Apple launch AR glasses in 2023?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.8649,
+        "agent-reliable": 0.057,
+        "agent-novice": 0.4406
+      },
+      "swarm_probability": 0.5673,
+      "swarm_decision": "DISPUTE",
+      "average_probability": 0.4541,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did the US housing market crash more than 20% in 2023?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.7641,
+        "agent-reliable": 0.1821,
+        "agent-novice": 0.4436
+      },
+      "swarm_probability": 0.5489,
+      "swarm_decision": "DISPUTE",
+      "average_probability": 0.4633,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did the US avoid a technical recession in 2023?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.9549,
+        "agent-reliable": 0.8499,
+        "agent-novice": 0.457
+      },
+      "swarm_probability": 0.8894,
+      "swarm_decision": "YES",
+      "average_probability": 0.754,
+      "average_decision": "YES",
+      "majority_decision": "YES"
+    },
+    {
+      "question": "Did the S&P 500 fall more than 20% in 2023?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.0321,
+        "agent-reliable": 0.1104,
+        "agent-novice": 0.6338
+      },
+      "swarm_probability": 0.095,
+      "swarm_decision": "NO",
+      "average_probability": 0.2588,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did Apple release the Vision Pro headset in early 2024?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.98,
+        "agent-reliable": 0.8058,
+        "agent-novice": 0.5679
+      },
+      "swarm_probability": 0.8964,
+      "swarm_decision": "YES",
+      "average_probability": 0.7846,
+      "average_decision": "YES",
+      "majority_decision": "YES"
+    },
+    {
+      "question": "Did Ethereum complete the Dencun upgrade in Q1 2024?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.9425,
+        "agent-reliable": 0.8538,
+        "agent-novice": 0.8159
+      },
+      "swarm_probability": 0.905,
+      "swarm_decision": "YES",
+      "average_probability": 0.8708,
+      "average_decision": "YES",
+      "majority_decision": "YES"
+    },
+    {
+      "question": "Did the Nasdaq outperform the Dow Jones in 2023?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.9518,
+        "agent-reliable": 0.2522,
+        "agent-novice": 0.227
+      },
+      "swarm_probability": 0.6725,
+      "swarm_decision": "DISPUTE",
+      "average_probability": 0.477,
+      "average_decision": "NO",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did Google announce the Gemini model family in late 2023?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.9239,
+        "agent-reliable": 0.8899,
+        "agent-novice": 0.5924
+      },
+      "swarm_probability": 0.8924,
+      "swarm_decision": "YES",
+      "average_probability": 0.8021,
+      "average_decision": "YES",
+      "majority_decision": "YES"
+    },
+    {
+      "question": "Did the US unemployment rate stay below 5% throughout 2023?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.98,
+        "agent-reliable": 0.7778,
+        "agent-novice": 0.7785
+      },
+      "swarm_probability": 0.8998,
+      "swarm_decision": "YES",
+      "average_probability": 0.8454,
+      "average_decision": "YES",
+      "majority_decision": "YES"
+    },
+    {
+      "question": "Did Bitcoin reach $60,000 at any point in early 2024?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.2224,
+        "agent-reliable": 0.839,
+        "agent-novice": 0.4402
+      },
+      "swarm_probability": 0.443,
+      "swarm_decision": "DISPUTE",
+      "average_probability": 0.5005,
+      "average_decision": "YES",
+      "majority_decision": "NO"
+    },
+    {
+      "question": "Did OpenAI release GPT-4 before 2024?",
+      "outcome": "YES",
+      "agent_votes": {
+        "agent-oracle": 0.98,
+        "agent-reliable": 0.2255,
+        "agent-novice": 0.5586
+      },
+      "swarm_probability": 0.7006,
+      "swarm_decision": "DISPUTE",
+      "average_probability": 0.5881,
+      "average_decision": "YES",
+      "majority_decision": "YES"
+    },
+    {
+      "question": "Did Binance exit the US market in 2023?",
+      "outcome": "NO",
+      "agent_votes": {
+        "agent-oracle": 0.7852,
+        "agent-reliable": 0.1499,
+        "agent-novice": 0.2236
+      },
+      "swarm_probability": 0.5374,
+      "swarm_decision": "DISPUTE",
+      "average_probability": 0.3863,
+      "average_decision": "NO",
+      "majority_decision": "NO"
     }
   ]
 }

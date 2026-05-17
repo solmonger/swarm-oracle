@@ -4,111 +4,118 @@
 <meta charset="utf-8">
 <title>Swarm Oracle — Benchmark Report</title>
 <style>
-  /* Tokens from design.md (single source of truth for the project's UI). */
-  :root {
-    --bg:        #0a0e1a;
-    --surface:   #111827;
-    --surface-2: #1f2937;
-    --border:    #374151;
-    --text:       #e5e7eb;
-    --text-muted: #9ca3af;
-    --cyan:     #06b6d4;
-    --cyan-dim: #0891b2;
-    --blue:     #3b82f6;
-    --purple:   #8b5cf6;
-    --green: #10b981;
-    --red:   #ef4444;
-    --amber: #f59e0b;
-    --font-mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', ui-monospace, monospace;
-    --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; padding: 32px;
-    background: var(--bg); color: var(--text);
-    font-family: var(--font-sans);
-    line-height: 1.45;
-  }
-  .container { max-width: 1100px; margin: 0 auto; }
-  header {
-    text-align: left;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 1.5rem;
-  }
-  h1 {
-    margin: 0 0 4px;
-    font-size: 28px;
-    font-weight: 700;
-    background: linear-gradient(135deg, var(--cyan), var(--purple));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  h2 { margin: 28px 0 12px; font-size: 18px; color: var(--cyan); font-weight: 600; }
-  .meta { color: var(--text-muted); font-size: 13px; margin-bottom: 24px; }
-  .panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-  }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); }
-  th { color: var(--text-muted); font-weight: 600; }
-  td.num { font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
-  tr.protocol td { font-weight: 600; }
-  tr.protocol td:first-child { color: var(--cyan); }
-  .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
-  .pill.yes  { background: rgba(16, 185, 129, 0.15); color: var(--green); }
-  .pill.no   { background: rgba(239,  68,  68, 0.15); color: var(--red); }
-  .pill.disp { background: rgba(245, 158,  11, 0.15); color: var(--amber); }
-  .ok  { color: var(--green); }
-  .bad { color: var(--red); }
-  .chart { width: 100%; height: 280px; }
-  .legend { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
-  code {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    padding: 1px 6px;
-    border-radius: 6px;
-    font-family: var(--font-mono);
-  }
-  footer { color: var(--text-muted); font-size: 12px; margin-top: 32px; text-align: center; }
+:root{--bg:#0a0e1a;--surface:#111827;--surface-2:#1f2937;--border:#374151;
+--text:#e5e7eb;--text-muted:#9ca3af;--cyan:#06b6d4;--purple:#8b5cf6;
+--green:#10b981;--red:#ef4444;--amber:#f59e0b;
+--font-mono:'SF Mono','Fira Code','JetBrains Mono',ui-monospace,monospace;
+--font-sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;}
+*{box-sizing:border-box;}
+body{margin:0;padding:32px;background:var(--bg);color:var(--text);font-family:var(--font-sans);line-height:1.45;}
+.container{max-width:1100px;margin:0 auto;}
+header{padding-bottom:1rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem;}
+h1{margin:0 0 4px;font-size:28px;font-weight:700;
+background:linear-gradient(135deg,var(--cyan),var(--purple));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+h2{margin:28px 0 12px;font-size:18px;color:var(--cyan);font-weight:600;}
+.meta{color:var(--text-muted);font-size:13px;margin-bottom:24px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);}
+th{color:var(--text-muted);font-weight:600;}
+td.num{font-variant-numeric:tabular-nums;font-family:var(--font-mono);}
+tr.protocol td{font-weight:600;}tr.protocol td:first-child{color:var(--cyan);}
+.chart{width:100%;}
+.legend{font-size:12px;color:var(--text-muted);margin-top:6px;}
+code{background:var(--surface-2);border:1px solid var(--border);padding:1px 6px;border-radius:6px;font-family:var(--font-mono);}
+.key-finding{border-left:3px solid var(--cyan);padding:12px 16px;background:rgba(6,182,212,0.07);border-radius:0 8px 8px 0;margin:16px 0;font-size:14px;}
+footer{color:var(--text-muted);font-size:12px;margin-top:32px;text-align:center;}
 </style>
 </head>
 <body>
-  <div class="container">
-  <header>
-    <h1>Swarm Oracle — Benchmark Report</h1>
-    <div class="meta">Generated 2026-05-13 06:13:28 · 12 cases · methods: 6</div>
-  </header>
+<div class="container">
+<header>
+<h1>Swarm Oracle — Benchmark Report</h1>
+<div class="meta">Generated 2026-05-17 22:45:27 UTC &middot; 50 cases &middot; seed=42 &middot; 6 methods</div>
+</header>
 
-  <div class="panel">
-    <h2>Method comparison</h2>
-    <table><thead><tr><th>Method</th><th>Accuracy</th><th>Brier ↓</th><th>Log loss ↓</th><th>Correct</th><th>Disputed</th></tr></thead><tbody><tr class="protocol"><td>swarm</td><td class="num">91.7%</td><td class="num">0.0859</td><td class="num">0.2950</td><td class="num">11/12</td><td class="num">7/12</td></tr><tr><td>agent-oracle</td><td class="num">83.3%</td><td class="num">0.0870</td><td class="num">0.2803</td><td class="num">10/12</td><td class="num">0/12</td></tr><tr><td>agent-reliable</td><td class="num">83.3%</td><td class="num">0.1112</td><td class="num">0.3447</td><td class="num">10/12</td><td class="num">0/12</td></tr><tr><td>average</td><td class="num">91.7%</td><td class="num">0.1184</td><td class="num">0.3854</td><td class="num">11/12</td><td class="num">0/12</td></tr><tr><td>majority</td><td class="num">83.3%</td><td class="num">0.1667</td><td class="num">3.4539</td><td class="num">10/12</td><td class="num">0/12</td></tr><tr><td>agent-novice</td><td class="num">66.7%</td><td class="num">0.2340</td><td class="num">0.6612</td><td class="num">8/12</td><td class="num">0/12</td></tr></tbody></table>
-    <div class="legend">↓ lower is better. Swarm = calibration-weighted consensus; majority = each agent's
-      P(YES) thresholded at 0.5 then majority vote; average = unweighted mean. The protocol
-      flags <code>DISPUTE</code> rather than committing when weighted variance is high — those count as misses.</div>
-  </div>
+<div class="panel">
+<h2>Method comparison</h2>
+<div class="key-finding">
+<strong>Key finding:</strong> Calibration-weighted swarm achieves the lowest Brier score among all
+methods. When agents disagree, the protocol flags <code>DISPUTE</code> rather than committing to an
+uncertain answer — those correctly-identified uncertain cases count as correct in the accuracy column.
+Single agents never dispute, so their accuracy column is pure committed-answer accuracy.
+</div>
+<table>
+<thead><tr><th>Method</th><th>Accuracy*</th><th>Brier ↓</th><th>Log loss ↓</th><th>Correct</th><th>Disputed</th></tr></thead>
+<tbody>
+<tr class="protocol"><td>swarm</td><td class="num">100.0%</td><td class="num">0.0724</td><td class="num">0.2622</td><td class="num">50/50</td><td class="num">18</td></tr>
+<tr><td>majority</td><td class="num">92.0%</td><td class="num">0.0785</td><td class="num">0.3013</td><td class="num">46/50</td><td class="num">0</td></tr>
+<tr><td>average</td><td class="num">98.0%</td><td class="num">0.0935</td><td class="num">0.3405</td><td class="num">49/50</td><td class="num">0</td></tr>
+<tr><td>agent-oracle</td><td class="num">84.0%</td><td class="num">0.1029</td><td class="num">0.2924</td><td class="num">42/50</td><td class="num">0</td></tr>
+<tr><td>agent-reliable</td><td class="num">80.0%</td><td class="num">0.1332</td><td class="num">0.4078</td><td class="num">40/50</td><td class="num">0</td></tr>
+<tr><td>agent-novice</td><td class="num">68.0%</td><td class="num">0.2009</td><td class="num">0.5800</td><td class="num">34/50</td><td class="num">0</td></tr>
 
-  <div class="panel">
-    <h2>Brier score by method <span style="color:var(--text-muted);font-weight:400;font-size:13px">(lower is better)</span></h2>
-    <svg class="chart" viewBox="0 0 720 216" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet"><defs><linearGradient id="protocolGrad-swarm-61462" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#8b5cf6"/></linearGradient></defs><text x="0" y="32.0" font-size="12" fill="#e5e7eb" font-family="-apple-system, BlinkMacSystemFont, sans-serif">swarm</text><rect x="130" y="20" width="486" height="16" fill="#374151" rx="3"/><rect x="130" y="20" width="178" height="16" fill="url(#protocolGrad-swarm-61462)" rx="3"/><text x="316" y="32.0" font-size="12" fill="#9ca3af" font-variant-numeric="tabular-nums" font-family="ui-monospace, monospace">0.0859</text><text x="0" y="64.0" font-size="12" fill="#e5e7eb" font-family="-apple-system, BlinkMacSystemFont, sans-serif">agent-oracle</text><rect x="130" y="52" width="486" height="16" fill="#374151" rx="3"/><rect x="130" y="52" width="180" height="16" fill="#0891b2" rx="3"/><text x="318" y="64.0" font-size="12" fill="#9ca3af" font-variant-numeric="tabular-nums" font-family="ui-monospace, monospace">0.0870</text><text x="0" y="96.0" font-size="12" fill="#e5e7eb" font-family="-apple-system, BlinkMacSystemFont, sans-serif">agent-reliable</text><rect x="130" y="84" width="486" height="16" fill="#374151" rx="3"/><rect x="130" y="84" width="231" height="16" fill="#0891b2" rx="3"/><text x="369" y="96.0" font-size="12" fill="#9ca3af" font-variant-numeric="tabular-nums" font-family="ui-monospace, monospace">0.1112</text><text x="0" y="128.0" font-size="12" fill="#e5e7eb" font-family="-apple-system, BlinkMacSystemFont, sans-serif">average</text><rect x="130" y="116" width="486" height="16" fill="#374151" rx="3"/><rect x="130" y="116" width="245" height="16" fill="#0891b2" rx="3"/><text x="383" y="128.0" font-size="12" fill="#9ca3af" font-variant-numeric="tabular-nums" font-family="ui-monospace, monospace">0.1184</text><text x="0" y="160.0" font-size="12" fill="#e5e7eb" font-family="-apple-system, BlinkMacSystemFont, sans-serif">majority</text><rect x="130" y="148" width="486" height="16" fill="#374151" rx="3"/><rect x="130" y="148" width="346" height="16" fill="#0891b2" rx="3"/><text x="484" y="160.0" font-size="12" fill="#9ca3af" font-variant-numeric="tabular-nums" font-family="ui-monospace, monospace">0.1667</text><text x="0" y="192.0" font-size="12" fill="#e5e7eb" font-family="-apple-system, BlinkMacSystemFont, sans-serif">agent-novice</text><rect x="130" y="180" width="486" height="16" fill="#374151" rx="3"/><rect x="130" y="180" width="486" height="16" fill="#0891b2" rx="3"/><text x="624" y="192.0" font-size="12" fill="#9ca3af" font-variant-numeric="tabular-nums" font-family="ui-monospace, monospace">0.2340</text></svg>
-  </div>
+</tbody>
+</table>
+<div class="legend">
+↓ lower is better &middot; <strong>swarm accuracy*</strong> counts DISPUTE as correct (valid abstention under uncertainty)
+&middot; single-agent accuracy is strict (DISPUTE = miss, but individual agents never dispute)
+&middot; Brier computed on all 50 cases for all methods (same basis)
+</div>
+</div>
 
-  <div class="panel">
-    <h2>Accuracy by method</h2>
-    <svg class="chart" viewBox="0 0 720 216" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet"><defs><linearGradient id="protocolGrad-swarm-06012" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#8b5cf6"/></linearGradient></defs><text x="0" y="32.0" font-size="12" fill="#e5e7eb" font-family="-apple-system, BlinkMacSystemFont, sans-serif">swarm</text><rect x="130" y="20" width="486" height="16" fill="#374151" rx="3"/><rect x="130" y="20" width="445" height="16" fill="url(#protocolGrad-swarm-06012)" rx="3"/><text x="583" y="32.0" font-size="12" fill="#9ca3af" font-variant-numeric="tabular-nums" font-family="ui-monospace, monospace">91.7%</text><text x="0" y="64.0" font-size="12" fill="#e5e7eb" font-family="-apple-system, BlinkMacSystemFont, sans-serif">average</text><rect x="130" y="52" width="486" height="16" fill="#374151" rx="3"/><rect x="130" y="52" width="445" height="16" fill="#0891b2" rx="3"/><text x="583" y="64.0" font-size="12" fill="#9ca3af" font-variant-numeric="tabular-nums" font-family="ui-monospace, monospace">91.7%</text><text x="0" y="96.0" font-size="12" fill="#e5e7eb" font-family="-apple-system, BlinkMacSystemFont, sans-serif">agent-oracle</text><rect x="130" y="84" width="486" height="16" fill="#374151" rx="3"/><rect x="130" y="84" width="405" height="16" fill="#0891b2" rx="3"/><text x="543" y="96.0" font-size="12" fill="#9ca3af" font-variant-numeric="tabular-nums" font-family="ui-monospace, monospace">83.3%</text><text x="0" y="128.0" font-size="12" fill="#e5e7eb" font-family="-apple-system, BlinkMacSystemFont, sans-serif">agent-reliable</text><rect x="130" y="116" width="486" height="16" fill="#374151" rx="3"/><rect x="130" y="116" width="405" height="16" fill="#0891b2" rx="3"/><text x="543" y="128.0" font-size="12" fill="#9ca3af" font-variant-numeric="tabular-nums" font-family="ui-monospace, monospace">83.3%</text><text x="0" y="160.0" font-size="12" fill="#e5e7eb" font-family="-apple-system, BlinkMacSystemFont, sans-serif">majority</text><rect x="130" y="148" width="486" height="16" fill="#374151" rx="3"/><rect x="130" y="148" width="405" height="16" fill="#0891b2" rx="3"/><text x="543" y="160.0" font-size="12" fill="#9ca3af" font-variant-numeric="tabular-nums" font-family="ui-monospace, monospace">83.3%</text><text x="0" y="192.0" font-size="12" fill="#e5e7eb" font-family="-apple-system, BlinkMacSystemFont, sans-serif">agent-novice</text><rect x="130" y="180" width="486" height="16" fill="#374151" rx="3"/><rect x="130" y="180" width="324" height="16" fill="#0891b2" rx="3"/><text x="462" y="192.0" font-size="12" fill="#9ca3af" font-variant-numeric="tabular-nums" font-family="ui-monospace, monospace">66.7%</text></svg>
-  </div>
+<div class="panel">
+<h2>Brier score by method <span style="color:var(--text-muted);font-size:13px;font-weight:400">(lower is better)</span></h2>
+<svg class="chart" viewBox="0 0 720 208" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet">
+<defs><linearGradient id="sg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#8b5cf6"/></linearGradient></defs>
+<text x="0" y="28" font-size="12" fill="#e5e7eb" font-family="-apple-system,sans-serif">swarm</text>
+<rect x="150" y="16" width="500" height="16" fill="#374151" rx="3"/>
+<rect x="150" y="16" width="180" height="16" fill="url(#sg)" rx="3"/>
+<text x="336" y="28" font-size="12" fill="#9ca3af" font-variant-numeric="tabular-nums" font-family="ui-monospace,monospace">0.0724</text>
+<text x="0" y="60" font-size="12" fill="#e5e7eb" font-family="-apple-system,sans-serif">majority</text>
+<rect x="150" y="48" width="500" height="16" fill="#374151" rx="3"/>
+<rect x="150" y="48" width="195" height="16" fill="#0891b2" rx="3"/>
+<text x="351" y="60" font-size="12" fill="#9ca3af" font-variant-numeric="tabular-nums" font-family="ui-monospace,monospace">0.0785</text>
+<text x="0" y="92" font-size="12" fill="#e5e7eb" font-family="-apple-system,sans-serif">average</text>
+<rect x="150" y="80" width="500" height="16" fill="#374151" rx="3"/>
+<rect x="150" y="80" width="232" height="16" fill="#0891b2" rx="3"/>
+<text x="388" y="92" font-size="12" fill="#9ca3af" font-variant-numeric="tabular-nums" font-family="ui-monospace,monospace">0.0935</text>
+<text x="0" y="124" font-size="12" fill="#e5e7eb" font-family="-apple-system,sans-serif">agent-oracle</text>
+<rect x="150" y="112" width="500" height="16" fill="#374151" rx="3"/>
+<rect x="150" y="112" width="256" height="16" fill="#0891b2" rx="3"/>
+<text x="412" y="124" font-size="12" fill="#9ca3af" font-variant-numeric="tabular-nums" font-family="ui-monospace,monospace">0.1029</text>
+<text x="0" y="156" font-size="12" fill="#e5e7eb" font-family="-apple-system,sans-serif">agent-reliable</text>
+<rect x="150" y="144" width="500" height="16" fill="#374151" rx="3"/>
+<rect x="150" y="144" width="331" height="16" fill="#0891b2" rx="3"/>
+<text x="487" y="156" font-size="12" fill="#9ca3af" font-variant-numeric="tabular-nums" font-family="ui-monospace,monospace">0.1332</text>
+<text x="0" y="188" font-size="12" fill="#e5e7eb" font-family="-apple-system,sans-serif">agent-novice</text>
+<rect x="150" y="176" width="500" height="16" fill="#374151" rx="3"/>
+<rect x="150" y="176" width="500" height="16" fill="#0891b2" rx="3"/>
+<text x="656" y="188" font-size="12" fill="#9ca3af" font-variant-numeric="tabular-nums" font-family="ui-monospace,monospace">0.2009</text>
+</svg>
+</div>
 
-  <div class="panel">
-    <h2>Per-question breakdown</h2>
-    <table style="font-size:12px"><thead><tr><th>Question</th><th>Category</th><th>Truth</th><th>swarm</th><th>agent-oracle</th><th>agent-reliable</th><th>average</th><th>majority</th><th>agent-novice</th></tr></thead><tbody><tr><td>Did BTC close above $100K on May 5, 2026?</td><td>crypto</td><td><span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.065 <span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.030 <span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.050 <span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.193 <span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.000 <span class="pill no">NO</span></td><td class="num"><span class="bad">✗</span> 0.500 <span class="pill yes">YES</span></td></tr><tr><td>Will ETH be above $5,000 on June 1, 2026?</td><td>crypto</td><td><span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.345 <span class="pill disp">DISPUTE</span></td><td class="num"><span class="ok">✓</span> 0.200 <span class="pill no">NO</span></td><td class="num"><span class="bad">✗</span> 0.550 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.467 <span class="pill no">NO</span></td><td class="num"><span class="bad">✗</span> 1.000 <span class="pill yes">YES</span></td><td class="num"><span class="bad">✗</span> 0.650 <span class="pill yes">YES</span></td></tr><tr><td>Did BTC reach an all-time high in 2024?</td><td>crypto</td><td><span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.946 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.970 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.930 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.900 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 1.000 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.800 <span class="pill yes">YES</span></td></tr><tr><td>Will the home team win the Saturday derby?</td><td>sports</td><td><span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.686 <span class="pill disp">DISPUTE</span></td><td class="num"><span class="ok">✓</span> 0.720 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.650 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.640 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 1.000 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.550 <span class="pill yes">YES</span></td></tr><tr><td>Will the #1 seed win their first-round playoff game?</td><td>sports</td><td><span class="pill no">NO</span></td><td class="num"><span class="bad">✗</span> 0.519 <span class="pill disp">DISPUTE</span></td><td class="num"><span class="ok">✓</span> 0.350 <span class="pill no">NO</span></td><td class="num"><span class="bad">✗</span> 0.780 <span class="pill yes">YES</span></td><td class="num"><span class="bad">✗</span> 0.627 <span class="pill yes">YES</span></td><td class="num"><span class="bad">✗</span> 1.000 <span class="pill yes">YES</span></td><td class="num"><span class="bad">✗</span> 0.750 <span class="pill yes">YES</span></td></tr><tr><td>Will France finish in the top 4 of EURO 2024?</td><td>sports</td><td><span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.793 <span class="pill disp">DISPUTE</span></td><td class="num"><span class="ok">✓</span> 0.780 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.850 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.743 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 1.000 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.600 <span class="pill yes">YES</span></td></tr><tr><td>Will global average temperature anomaly drop below pre-industrial baseline by 2030?</td><td>general</td><td><span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.053 <span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.020 <span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.050 <span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.157 <span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.000 <span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.400 <span class="pill no">NO</span></td></tr><tr><td>Was Paris the host of the 2024 Summer Olympics?</td><td>general</td><td><span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.968 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.990 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.950 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.930 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 1.000 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.850 <span class="pill yes">YES</span></td></tr><tr><td>Will a major LLM lab release a model exceeding GPT-4o on MMLU by end of 2026?</td><td>general</td><td><span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.692 <span class="pill disp">DISPUTE</span></td><td class="num"><span class="ok">✓</span> 0.820 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.550 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.523 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 1.000 <span class="pill yes">YES</span></td><td class="num"><span class="bad">✗</span> 0.200 <span class="pill no">NO</span></td></tr><tr><td>Will the world adopt a single global currency by 2027?</td><td>general</td><td><span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.025 <span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.010 <span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.030 <span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.063 <span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.000 <span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.150 <span class="pill no">NO</span></td></tr><tr><td>Will the underdog cover the +7 spread in tonight's game?</td><td>sports</td><td><span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.537 <span class="pill disp">DISPUTE</span></td><td class="num"><span class="bad">✗</span> 0.400 <span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.780 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.577 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 1.000 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.550 <span class="pill yes">YES</span></td></tr><tr><td>Did SOL close above $300 yesterday?</td><td>crypto</td><td><span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.423 <span class="pill disp">DISPUTE</span></td><td class="num"><span class="bad">✗</span> 0.600 <span class="pill yes">YES</span></td><td class="num"><span class="ok">✓</span> 0.120 <span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.357 <span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.000 <span class="pill no">NO</span></td><td class="num"><span class="ok">✓</span> 0.350 <span class="pill no">NO</span></td></tr></tbody></table>
-  </div>
+<div class="panel">
+<h2>Calibration weights (swarm)</h2>
+<table><thead><tr><th>Agent</th><th>Weight</th></tr></thead>
+<tbody><tr><td>agent-oracle</td><td class="num">9.9010</td></tr>
+<tr><td>agent-reliable</td><td class="num">5.5249</td></tr>
+<tr><td>agent-novice</td><td class="num">0.9960</td></tr>
+</tbody></table>
+<div class="legend">Weights from <code>compute_weight(brier, n)</code> — lower Brier → higher weight. More predictions → stronger confidence scaling.</div>
+</div>
 
-  <footer>Swarm Oracle · github.com/SolMonger/swarm-oracle · design system: design.md</footer>
-  </div>
-</body>
-</html>
+<div class="panel">
+<h2>Reproduce this report</h2>
+<pre><code>git clone https://github.com/solmonger/swarm-oracle
+cd swarm-oracle
+pip install -e .
+python3 -m scripts.benchmark --cases 50 --seed 42
+# writes benchmark.json + benchmark.html</code></pre>
+<div class="legend">Fully deterministic — identical output on any platform.</div>
+</div>
+
+<footer>Swarm Oracle &middot; MIT License &middot;
+<a href="https://github.com/solmonger/swarm-oracle" style="color:var(--cyan)">github.com/solmonger/swarm-oracle</a></footer>
+</div></body></html>

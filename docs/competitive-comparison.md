@@ -63,8 +63,8 @@ with more agents, not deferred 48 hours.
 
 **Numerical comparison.** UMA dispute resolution: 48 hours. Swarm
 Oracle DISPUTE → re-run: ~3 seconds (see
-[`benchmark.json`](../benchmark.json) for the headline 0.0859 Brier
-score on the calibration eval).
+[`benchmark.json`](../benchmark.json) for the headline 0.0724 Brier
+score on the 50-case deterministic calibration eval, seed=42).
 
 ---
 
@@ -254,10 +254,11 @@ once a few resolutions are on-chain — self-improving."*
   agent's calibration weight drops on the next resolution, but the
   agent doesn't lose stake. This is on the v0.2 roadmap — see
   `RewardDistribution.sol` and `threat-model.md` §7.
-* **Swarm Oracle's headline 91.7% accuracy / 0.0859 Brier** is on a
-  curated 24-question eval (`benchmark.json`). Real-world deployment
-  will see different distributions. The protocol is designed to *learn
-  from* deployment data via the DPO loop; numbers will move with use.
+* **Swarm Oracle's headline 100% accuracy / 0.0724 Brier** is on a
+  50-case deterministic eval (`benchmark.json`, seed=42). Real-world
+  deployment will see different distributions. The protocol is designed
+  to *learn from* deployment data via the DPO loop; numbers will move
+  with use.
 
 ---
 

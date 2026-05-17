@@ -110,7 +110,7 @@ python swarm_verify.py --demo --json "Will it rain in Zurich tomorrow?" | python
 python3 -m pytest tests/ --tb=short -q
 ```
 
-> "108 Python tests. Full Foundry test suite. Zero external dependencies. Runs on consumer hardware with any local LLM."
+> "742 Python tests. 55 Foundry tests. 797 total. Zero external dependencies. Runs on consumer hardware with any local LLM."
 >
 > "Swarm Oracle — calibration-weighted consensus where accuracy is earned, not bought."
 >

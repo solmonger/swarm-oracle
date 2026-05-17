@@ -1,4 +1,4 @@
-.PHONY: test test-api test-integration test-solidity test-sybil test-adversarial demo api record-demo clean docker docker-demo docker-test docker-api sybil-demo sybil-demo-all adversarial-demo adversarial-compare adversarial-demo-all
+.PHONY: test test-api test-integration test-solidity test-sybil test-adversarial test-parity test-benchmark test-economic demo api record-demo clean docker docker-demo docker-test docker-api sybil-demo sybil-demo-all adversarial-demo adversarial-compare adversarial-demo-all benchmark economic-model economic-model-scaling economic-model-mvp
 
 # ---------- Python ----------
 test:
@@ -15,6 +15,15 @@ test-sybil:
 
 test-adversarial:
 	python3 -m pytest tests/test_adversarial.py tests/test_adversarial_demo.py -v --tb=short
+
+test-parity:
+	python3 -m pytest contracts/test/test_solidity_math_parity.py -v --tb=short
+
+test-benchmark:
+	python3 -m pytest tests/test_benchmark.py -v --tb=short
+
+test-economic:
+	python3 -m pytest tests/test_economic_model.py -v --tb=short
 
 # ---------- Sybil-resistance analysis ----------
 sybil-demo:
@@ -36,6 +45,20 @@ adversarial-demo-all:
 
 adversarial-compare:
 	python3 -m scripts.adversarial_demo --compare
+
+# ---------- Reproducible benchmark ----------
+benchmark:
+	python3 -m scripts.benchmark --cases 50 --seed 42
+
+# ---------- Economic security model ----------
+economic-model:
+	python3 -m scripts.economic_model --market-size 10000
+
+economic-model-scaling:
+	python3 -m scripts.economic_model --pool-scaling
+
+economic-model-mvp:
+	python3 -m scripts.economic_model --mvp
 
 demo:
 	python3 swarm_verify.py --demo "Did BTC close above $$100K on May 5, 2026?"

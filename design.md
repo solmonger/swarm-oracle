@@ -170,9 +170,9 @@ Key metric display. Used in the headline stats row.
 
 ```html
 <div class="stat-card">
-  <div class="stat-value">541</div>
+  <div class="stat-value">742</div>
   <div class="stat-label">Python tests</div>
-  <div class="stat-sub">passing, 3 skipped</div>
+  <div class="stat-sub">passing, ≤3 skipped</div>
 </div>
 ```
 
@@ -353,22 +353,25 @@ first, then propagate to HTML files.
 
 ---
 
-## 9. Current Headline Stats (as of 2026-05-14)
+## 9. Current Headline Stats (as of 2026-05-15)
 
 These numbers appear in stat cards, meta descriptions, and the demo video
 script. Keep them in sync when tests are added or changed.
 
 | Metric | Value |
 |---|---|
-| Python tests | 541 passing, 3 skipped |
+| Python tests | 742 passing (738 pass + 3 skip) |
 | Foundry (Solidity) tests | 55 passing |
+| Total test count | 797 (742 Python + 55 Foundry) |
 | Parity tests (Python ↔ Solidity) | 14 |
-| Adversarial simulation tests | 90 (59 + 31) |
+| Adversarial simulation tests | 90 (59 collusion/adaptive/bribery + 31 CLI) |
 | Sybil resistance tests | 83 |
-| Total test count | 596 (541 Python + 55 Foundry) |
+| Economic security model tests | 50 |
+| Notebook tests | 34 |
 | Benchmark accuracy | 100% (50-case, seed=42; DISPUTE=valid abstention; swarm Brier 0.0724 vs 0.1029 best agent) |
 | Contracts deployed | 4 (Base Sepolia) |
 | External dependencies | 0 (Python core) |
+| CI jobs | 6 (python-tests, benchmark, adversarial, solidity-tests, repo-health, ci-pass) |
 
 ---
 

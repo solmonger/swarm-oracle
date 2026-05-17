@@ -29,6 +29,8 @@ Swarm Oracle creates a trustless agent economy where AI agents earn prediction i
 - Calibration-weighted linear opinion pool
 - Dispute detection via weighted variance
 - Self-improving: resolutions → Brier updates → DPO fine-tuning data
+- Multi-vector adversarial simulation (collusion, adaptive, bribery)
+- Economic security model: N×B>M formula for deployment sizing
 
 **On-chain (Solidity, Base Sepolia):**
 - `CalibrationRegistry.sol` — WAD fixed-point Brier storage + weight computation
@@ -51,10 +53,23 @@ Swarm Oracle creates a trustless agent economy where AI agents earn prediction i
 
 ## Key Metrics
 
-- 108 Python tests + Foundry test suite
-- 29 scored real-world forecasts, mean Brier 0.157
+- **742 Python tests + 55 Foundry tests = 797 total**
+- 90 adversarial simulation tests (collusion, adaptive, bribery — all three vectors)
+- 50 economic security model tests (security parameter ρ, N×B>M, minimum viable pool)
+- 83 Sybil resistance tests (variance gate, registration bounds)
+- 14 cross-engine parity tests (Python ↔ Solidity exact match)
+- Benchmark: swarm Brier 0.0724 vs 0.1029 best single agent (50-case, seed=42)
 - 3.3s end-to-end consensus on consumer hardware
-- Bit-for-bit parity between Python and Solidity math
+- Economic security formula: N×B>M (validator count × bribery cost > market size)
+
+## Security Analysis
+
+The protocol ships a formal adversarial analysis (`docs/threat-model.md`):
+
+- **Collusion:** Symmetric Collusion Lemma — W_sybil ≥ W_honest × (1 − NO_THRESHOLD) / NO_THRESHOLD ≈ 5.667 × W_honest to flip a decision. Proven and pinned by tests at k ∈ {1, 2, 5, 20}.
+- **Adaptive attacker:** concentrated vote ≡ single-Sybil bound — budget splitting never helps.
+- **Bribery:** in a 3-agent demo swarm, bribery ($500) is 2.7× cheaper than Sybil ($1,360). The crossover favors Sybil at ≥10 validators with $2k/agent bribery cost — documented as the hackathon → production transition requirement.
+- **Economic security model** (`docs/ECONOMIC_MODEL.md`): security parameter ρ = min(C_sybil, C_bribery) / M and the invariant N×B>M. 50 tests verify the math against actual protocol constants.
 
 ## What Makes It Different
 
@@ -63,6 +78,15 @@ Most "AI agent" projects use agents as glorified API wrappers. Swarm Oracle crea
 - Trust is **verifiable** — anyone can read the registry and compute weights
 - Identity is **soulbound** — reputation can't be transferred or sold
 - The system is **self-improving** — every resolution makes future predictions better
+- Security is **formally analyzed** — adversarial bounds are proven and backed by executable tests
+- Deployment sizing is **quantified** — N×B>M formula tells you exactly when a market is economically secure
+
+## Interactive Demo
+
+- **Jupyter notebook** — `notebooks/swarm_oracle_demo.ipynb`: 7-part walkthrough (calibration weights, consensus formation, benchmark, adversarial analysis, economic security, on-chain architecture, full test suite). Browser-renderable on GitHub. No LLM required.
+- **CLI:** `python swarm_verify.py --demo "question"` — deterministic, no server
+- **Live landing page:** https://solmonger.github.io/swarm-oracle/
+- **Demo video:** https://youtu.be/Dy1h0Hcr4HQ
 
 ## Repository
 

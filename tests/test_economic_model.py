@@ -222,9 +222,11 @@ class TestSecurityParameter:
         assert sp.security_ratio == pytest.approx(expected_ratio)
 
     def test_secure_when_attack_cost_exceeds_market(self):
-        # Small market, large bribery cost → secure
+        # Small market, large bribery cost AND large sybil cost → secure
+        # With default sybil cost ($5), 94 sybils only costs $470 — still cheaper than $1K market.
+        # Use cost_per_sybil_usd=20 so sybil cost = 94 × $20 = $1880 > $1K market.
         pool = demo_validators(bribery_cost_usd=50_000)
-        sp = security_parameter(pool, market_size_usd=1_000)
+        sp = security_parameter(pool, market_size_usd=1_000, cost_per_sybil_usd=20.0)
         assert sp.is_economically_secure is True
 
     def test_insecure_when_attack_cost_below_market(self):
@@ -313,13 +315,20 @@ class TestMinimumViablePool:
         assert isinstance(n, int)
 
     def test_larger_market_requires_larger_pool(self):
-        n_small = minimum_viable_pool_for_market(10_000, bribery_cost_usd=500)
-        n_large = minimum_viable_pool_for_market(100_000, bribery_cost_usd=500)
+        # Use market sizes achievable under max_pool=500:
+        # $1K market → ~6 agents needed; $10K market → ~54 agents needed.
+        # ($100K at $5/sybil needs >500 agents and returns -1, so use smaller markets.)
+        n_small = minimum_viable_pool_for_market(1_000, bribery_cost_usd=500)
+        n_large = minimum_viable_pool_for_market(10_000, bribery_cost_usd=500)
         assert n_large >= n_small
 
     def test_higher_bribery_cost_requires_smaller_pool(self):
-        n_cheap = minimum_viable_pool_for_market(50_000, bribery_cost_usd=100)
-        n_dear = minimum_viable_pool_for_market(50_000, bribery_cost_usd=10_000)
+        # When bribery is cheap ($100/agent), the bribery vector dominates and you need
+        # a large pool (~118 for $5K market). When bribery is expensive ($10K/agent), only
+        # the sybil vector matters and a smaller pool (~27) suffices.
+        # Use $5K market — both answers are feasible under max_pool=500.
+        n_cheap = minimum_viable_pool_for_market(5_000, bribery_cost_usd=100)
+        n_dear = minimum_viable_pool_for_market(5_000, bribery_cost_usd=10_000)
         assert n_dear <= n_cheap
 
     def test_returned_pool_is_actually_secure(self):
